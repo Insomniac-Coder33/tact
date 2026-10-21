@@ -106,7 +106,7 @@ uv run python -m unittest discover -s tests
 | `app.py` | Streamlit demo, with a naive-memory agent side by side |
 | `eval/` | scenarios, evaluation script, results |
 | `tests/` | offline tests with a stub decider |
-| `docs/` | Builder Center article and video script |
+| `docs/` | Builder Center article |
 | `infra/decider_ec2.py` | launch the decider server on EC2 (GPU, CPU fallback) |
 | `data/memories.json` | the fictional user Arjun's 30 memories |
 
