@@ -4,6 +4,7 @@ The same instance also runs Ollama with a small open chat model and an embedding
 Tact works on accounts where Amazon Bedrock is not available (TACT_PROVIDER=ollama).
 
     uv run python infra/decider_ec2.py up      # launch (or start) and wait until it answers
+    uv run python infra/decider_ec2.py app     # also run the Tact demo app on the instance
     uv run python infra/decider_ec2.py status  # state, URL, health
     uv run python infra/decider_ec2.py stop    # stop billing for compute, keep the disk
     uv run python infra/decider_ec2.py down    # terminate everything it created
@@ -17,6 +18,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import time
 import urllib.request
@@ -29,12 +31,14 @@ ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / ".cache"
 URL_FILE = CACHE / "decider_url"
 OLLAMA_FILE = CACHE / "ollama_url"
+APP_FILE = CACHE / "app_url"
 KEY_FILE = CACHE / "tact-decider.pem"
 
 REGION = os.environ.get("AWS_REGION", "us-east-1")
 NAME = "tact-decider"
 PORT = 8099
 OLLAMA_PORT = 11434
+APP_PORT = 8501
 MODEL = "StrandsAgents/strands-decider-2B-qwen3.5-v1-2610"
 GPU_TYPE = os.environ.get("TACT_GPU_TYPE", "g6.xlarge")
 CPU_TYPE = os.environ.get("TACT_CPU_TYPE", "c7i.2xlarge")
@@ -108,7 +112,7 @@ def security_group(ip: str) -> str:
     else:
         sg = ec2.create_security_group(GroupName=NAME, Description="Tact decider, owner IP only",
                                        VpcId=vpc)["GroupId"]
-    for port in (PORT, OLLAMA_PORT, 22):
+    for port in (PORT, OLLAMA_PORT, APP_PORT, 22):
         try:
             ec2.authorize_security_group_ingress(GroupId=sg, IpPermissions=[{
                 "IpProtocol": "tcp", "FromPort": port, "ToPort": port,
@@ -210,6 +214,61 @@ def up() -> None:
                      "and read /var/log/decider-setup.log")
 
 
+# The demo app runs next to the servers it calls, as the ubuntu user, from a copy of the
+# current git HEAD (no push needed). Same owner-IP-only security group.
+APP_UNIT = """[Unit]
+After=network-online.target decider.service ollama.service
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/tact
+Environment=TACT_DECIDER_URL=http://127.0.0.1:{port}
+Environment=TACT_OLLAMA_URL=http://127.0.0.1:{ollama_port}
+Environment=TACT_PROVIDER={provider}
+Environment=TACT_CACHE=/home/ubuntu/tact-cache
+ExecStart=/home/ubuntu/.local/bin/uv run --frozen --no-dev streamlit run app.py --server.port {app_port} \
+  --server.address 0.0.0.0 --server.headless true --browser.gatherUsageStats false
+Restart=always
+[Install]
+WantedBy=multi-user.target
+"""
+
+
+def ssh(ip: str, command: str, stdin: bytes | None = None) -> None:
+    subprocess.run(["ssh", "-i", str(KEY_FILE), "-o", "StrictHostKeyChecking=accept-new",
+                    f"ubuntu@{ip}", command], input=stdin, check=True)
+
+
+def app() -> None:
+    inst = find_instance()
+    if not inst or inst["State"]["Name"] != "running":
+        raise SystemExit("start the instance first: infra/decider_ec2.py up")
+    ip = inst["PublicIpAddress"]
+    security_group(my_ip())
+    provider = os.environ.get("TACT_PROVIDER") or (
+        (CACHE / "provider").read_text().strip() if (CACHE / "provider").exists() else "bedrock")
+    print(f"copying git HEAD to {ip}")
+    code = subprocess.run(["git", "archive", "--format=tar", "HEAD"], cwd=ROOT,
+                          capture_output=True, check=True).stdout
+    ssh(ip, "rm -rf ~/tact && mkdir -p ~/tact ~/tact-cache && tar -x -C ~/tact", code)
+    print("installing (first time: a few minutes)")
+    ssh(ip, "test -x ~/.local/bin/uv || curl -LsSf https://astral.sh/uv/install.sh | sh; "
+            "cd ~/tact && ~/.local/bin/uv sync --frozen --no-dev -q")
+    unit = APP_UNIT.format(port=PORT, ollama_port=OLLAMA_PORT, app_port=APP_PORT, provider=provider)
+    ssh(ip, "sudo tee /etc/systemd/system/tact-app.service >/dev/null && sudo systemctl daemon-reload "
+            "&& sudo systemctl enable -q tact-app && sudo systemctl restart tact-app", unit.encode())
+    url = f"http://{ip}:{APP_PORT}"
+    for _ in range(40):
+        try:
+            if urllib.request.urlopen(f"{url}/_stcore/health", timeout=5).read().strip() == b"ok":
+                APP_FILE.write_text(url)
+                print(f"Tact is running on AWS: {url}  (provider: {provider}; open from your IP only)")
+                return
+        except Exception:
+            pass
+        time.sleep(5)
+    raise SystemExit(f"app did not start; ssh -i {KEY_FILE} ubuntu@{ip} journalctl -u tact-app")
+
+
 def status() -> None:
     inst = find_instance()
     if not inst:
@@ -221,6 +280,8 @@ def status() -> None:
           health(url) if running else "")
     if running and OLLAMA_FILE.exists():
         print("ollama:", OLLAMA_FILE.read_text(), ollama_models(OLLAMA_FILE.read_text()))
+    if running and APP_FILE.exists():
+        print("app:", APP_FILE.read_text())
 
 
 def stop() -> None:
@@ -242,9 +303,9 @@ def down() -> None:
             fn()
         except ClientError as e:
             print("cleanup:", e)
-    URL_FILE.unlink(missing_ok=True)
-    OLLAMA_FILE.unlink(missing_ok=True)
+    for f in (URL_FILE, OLLAMA_FILE, APP_FILE):
+        f.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":
-    {"up": up, "status": status, "stop": stop, "down": down}[sys.argv[1] if len(sys.argv) > 1 else "status"]()
+    {"up": up, "app": app, "status": status, "stop": stop, "down": down}[sys.argv[1] if len(sys.argv) > 1 else "status"]()
