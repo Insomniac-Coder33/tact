@@ -307,6 +307,12 @@ decisions deserve a second look, not who should make them. A bigger Bedrock mode
   dish, it skipped a severe peanut allergy. Naming allergies in the "mention" option didn't fix
   it and made other decisions worse, so safety constraints like allergies may be better handled
   by a rule than by a judgment call.
+- The option order matters a little. I asked every memory question with the three options in
+  three different orders. The decider's top label changed in only 3% of decisions, and never
+  towards whichever option was listed first. But the cost table draws its lines where small
+  shifts matter, so the final action changed in 9%, and in the two other orders 1 and 2
+  sensitive facts got through. "Zero sensitive facts" holds for the order I shipped, not for
+  every order. Averaging the three orders barely helped, so I kept one.
 - "Said something sensitive" is a keyword check on the reply, which can miss paraphrases.
 - The past-event answers sit close to 0.5 for most memories, so that guard is a blunt tool: it
   protects past events, but it also turns some correct retirements into flags.

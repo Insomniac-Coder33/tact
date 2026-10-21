@@ -1,0 +1,48 @@
+[s01] 8 memories x 3 orders
+[s02] 8 memories x 3 orders
+[s03] 8 memories x 3 orders
+[s04] 8 memories x 3 orders
+[s05] 8 memories x 3 orders
+[s06] 8 memories x 3 orders
+[s07] 8 memories x 3 orders
+[s08] 8 memories x 3 orders
+[s09] 8 memories x 3 orders
+[s10] 8 memories x 3 orders
+[s11] 8 memories x 3 orders
+[s12] 8 memories x 3 orders
+[s13] 8 memories x 3 orders
+[s14] 8 memories x 3 orders
+[s15] 8 memories x 3 orders
+[s16] 8 memories x 3 orders
+[s17] 8 memories x 3 orders
+[s18] 8 memories x 3 orders
+[s19] 8 memories x 3 orders
+[s20] 8 memories x 3 orders
+[s21] 8 memories x 3 orders
+[s22] 8 memories x 3 orders
+[s23] 8 memories x 3 orders
+[s24] 8 memories x 3 orders
+[s25] 8 memories x 3 orders
+[s26] 8 memories x 3 orders
+[s27] 8 memories x 3 orders
+[s28] 8 memories x 3 orders
+[s29] 8 memories x 3 orders
+[s30] 8 memories x 3 orders
+[s31] 8 memories x 3 orders
+[s32] 8 memories x 3 orders
+[s33] 8 memories x 3 orders
+[s34] 8 memories x 3 orders
+
+## Robustness: does the order of the options matter?
+
+Each of the 272 memory decisions was asked three times, with the options in three rotations (mention/quiet/skip, quiet/skip/mention, skip/mention/quiet).
+
+| check | result |
+|---|---|
+| policy action changed with the order | 25/272 (9.2%) |
+| decider's top label changed with the order | 8/272 (2.9%) |
+| first-listed option picked as top label | 269/816 (33.0%); a bias-free model picks it as often as that option happens to be right |
+| median / largest probability shift between orders | 0.03 / 0.19 |
+
+Made by `eval/option_order.py`; answers saved in `eval/results/option_order.json`.
+

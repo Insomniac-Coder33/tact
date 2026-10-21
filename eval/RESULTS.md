@@ -109,6 +109,28 @@ Not with this LLM: the cases the decider finds hard are hard for the 3B LLM too.
 
 Made by `eval/calibration.py` from the saved run, with no decider calls.
 
+## Robustness: does the order of the options matter?
+
+Each of the 272 memory decisions in the 34 scenarios was asked three times, with the options in three rotations.
+
+| check | result |
+|---|---|
+| decider's top label changed with the order | 8/272 (2.9%) |
+| … and moved to whichever option was listed first | 0 of 10 moves |
+| policy action changed with the order | 25/272 (9.2%) |
+| median / largest probability shift between orders | 0.03 / 0.19 |
+
+| options listed as | policy right | sensitive facts mentioned |
+|---|---|---|
+| mention / quiet / skip (shipped) | 215/260 (82.7%) | 0 |
+| quiet / skip / mention | 218/260 (83.8%) | 1 |
+| skip / mention / quiet | 218/260 (83.8%) | 2 |
+| average of the three | 220/260 (84.6%) | 1 |
+
+No sign of a bias towards the first-listed option. But the cost table draws its lines where small probability shifts matter, so the final action moves about three times as often as the top label, and in the other two orders 1 and 2 sensitive facts got through. Averaging the three orders gains little for three times the questions, so the shipped gate asks once.
+
+Made by `eval/option_order.py`; answers saved in `eval/results/option_order.json`.
+
 ## Write side: which stored memories does a new message make outdated?
 
 27 messages × 3 stored memories, one decider call per message. Policy: retire at P(outdated) ≥ 0.6, flag as "may be out of date" from 0.4; a message that repeats a memory (P(repeat) ≥ 0.5) isn't stored again. With the past-event guard, a memory with P(past event) ≥ 0.5 is never retired, only flagged. Both policies are scored on the same decider answers.

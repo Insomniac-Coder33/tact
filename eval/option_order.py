@@ -52,10 +52,17 @@ def collect() -> list[dict]:
 
 
 def report(rows: list[dict]) -> str:
+    from run_eval import SENSITIVE, label_of
+
+    scenarios = {s["id"]: s for s in json.loads((ROOT / "eval" / "scenarios.json").read_text(encoding="utf-8"))}
     gate = mg.MemoryGate(None)
-    n = top_changed = action_changed = first_picked = asked = 0
+    n = top_changed = action_changed = moved = moved_to_first = 0
     max_shift = []
+    # per answer set: [right, scored, sensitive facts said]
+    scores = {name: [0, 0, 0] for name in ("mention / quiet / skip (shipped)", "quiet / skip / mention",
+                                           "skip / mention / quiet", "average of the three")}
     for row in rows:
+        s = scenarios[row["id"]]
         for mid in row["orders"][0]:
             ps = [o[mid] for o in row["orders"]]
             tops = [max(p, key=p.get) for p in ps]
@@ -63,23 +70,40 @@ def report(rows: list[dict]) -> str:
             n += 1
             top_changed += len(set(tops)) > 1
             action_changed += len(set(actions)) > 1
-            for order, top in zip(ORDERS, tops):
-                asked += 1
-                first_picked += top == order[0]
+            for order, top in zip(ORDERS[1:], tops[1:]):
+                if top != tops[0]:
+                    moved += 1
+                    moved_to_first += top == order[0]
             max_shift.append(max(max(p[k] for p in ps) - min(p[k] for p in ps) for k in mg.LABELS))
+            truth = label_of(s, mid)
+            if truth is None:
+                continue
+            avg = {k: sum(p[k] for p in ps) / len(ps) for k in mg.LABELS}
+            for name, p in zip(scores, ps + [avg]):
+                action = gate.decide(p)[0]
+                scores[name][0] += action == truth
+                scores[name][1] += 1
+                scores[name][2] += mid in SENSITIVE and truth != "mention" and action == "mention"
     max_shift.sort()
-    return "\n".join([
+    out = [
         "## Robustness: does the order of the options matter?", "",
-        f"Each of the {n} memory decisions was asked three times, with the options in three rotations "
-        "(mention/quiet/skip, quiet/skip/mention, skip/mention/quiet).", "",
+        f"Each of the {n} memory decisions in the 34 scenarios was asked three times, with the options "
+        "in three rotations.", "",
         "| check | result |", "|---|---|",
-        f"| policy action changed with the order | {action_changed}/{n} ({action_changed / n:.1%}) |",
         f"| decider's top label changed with the order | {top_changed}/{n} ({top_changed / n:.1%}) |",
-        f"| first-listed option picked as top label | {first_picked}/{asked} ({first_picked / asked:.1%}); "
-        "a bias-free model picks it as often as that option happens to be right |",
+        f"| … and moved to whichever option was listed first | {moved_to_first} of {moved} moves |",
+        f"| policy action changed with the order | {action_changed}/{n} ({action_changed / n:.1%}) |",
         f"| median / largest probability shift between orders | {max_shift[len(max_shift) // 2]:.2f} / "
         f"{max_shift[-1]:.2f} |", "",
-        "Made by `eval/option_order.py`; answers saved in `eval/results/option_order.json`.", ""])
+        "| options listed as | policy right | sensitive facts mentioned |", "|---|---|---|"]
+    for name, (right, total, said) in scores.items():
+        out.append(f"| {name} | {right}/{total} ({right / total:.1%}) | {said} |")
+    out += ["", "No sign of a bias towards the first-listed option. But the cost table draws its lines "
+            "where small probability shifts matter, so the final action moves about three times as often "
+            "as the top label, and in the other two orders 1 and 2 sensitive facts got through. Averaging "
+            "the three orders gains little for three times the questions, so the shipped gate asks once.",
+            "", "Made by `eval/option_order.py`; answers saved in `eval/results/option_order.json`.", ""]
+    return "\n".join(out)
 
 
 if __name__ == "__main__":
