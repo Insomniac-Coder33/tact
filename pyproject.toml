@@ -1,0 +1,23 @@
+[project]
+name = "tact"
+version = "0.1.0"
+description = "A Strands agent whose long-term memory is gated by Strands Decider 2B: mention, use quietly, or skip."
+readme = "README.md"
+authors = [
+    { name = "Insomniac-Coder33", email = "233193585+Insomniac-Coder33@users.noreply.github.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "boto3>=1.43.116",
+    "numpy>=2.5.4",
+    "ollama>=0.6.3",
+    "strands-agents>=1.61.1",
+    "streamlit>=1.66.0",
+]
+
+[project.scripts]
+tact = "tact:main"
+
+[build-system]
+requires = ["uv_build>=0.13.4,<0.14.0"]
+build-backend = "uv_build"

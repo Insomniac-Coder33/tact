@@ -1,0 +1,198 @@
+[s01] Suggest a quick dinner recipe I can make tonight.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s02] I'm planning a trip to Paris next spring. What should I see?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s03] Help me book flights to Jaipur in December.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s04] What should I do this Saturday morning?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s05] Can you suggest a gift for my mom?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s06] I need a new hobby to take my mind off things lately.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s07] Write a short cover letter intro for a data analyst role.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s08] How should I prepare for my half marathon?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s09] Recommend a good book for my next flight.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s10] Plan a cheap weekend trip from Pune.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s11] What should I cook for my family this weekend?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s12] I'm thinking of getting a puppy. Thoughts?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s13] Can you help me write a SQL query to find duplicate rows?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s14] What should I write in a birthday message for my friend Rohan?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s15] How do I budget better this month?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s16] Which universities should I look at for my master's?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s17] Suggest some activities for my dad, who is recovering at home.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s18] Can I run a 2B parameter model on my laptop?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s19] I'm visiting Rohan in Berlin. Any tips?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s20] What can I do on my birthday this year?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s21] Suggest a sweet I could bring to my sister's wedding.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s22] Should I go paragliding in Kamshet?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s23] Any tips to sleep better? I've been stressed.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s24] Recommend a road trip from Pune to Goa.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s25] It's been a month since Biscuit died and I still can't walk past Pashan lake. How do I cope?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s26] I'm going back to Paris for the first time since Meera and I split. How do I make it feel like my own trip?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s27] What should I cook for him this week?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s28] Since the layoff I've been doubting myself. Can you help me prepare for interviews?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s29] Should I go up the Eiffel Tower?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s30] What's a good way to unwind tonight?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s31] My grandmother used to make the best puran poli. Can you find me a recipe like hers?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s32] Money is tight this month after paying rent. Any cheap ideas for the weekend?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s33] Help me plan a celebration this weekend.
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+[s34] Any ideas for a first date next week?
+    tags       done
+    llm_gate   done
+    tact       done
+    tact_split done
+
+# Tact evaluation results
+
+34 scenarios (6 where the user raises a sensitive subject themselves, 4 multi-turn), 30 memories, top-8 prefilter. Chat model: `tact-chat`. Prices assumed: $0.0/M input, $0.0/M output tokens.
+
+## Gate decisions vs. hand labels (all scenarios)
+
+Scored on the prefiltered candidates; memories labelled "either" are not scored.
+
+| gate | 3-way accuracy | sensitive facts it let be mentioned ↓ | sensitive facts the user raised, mentioned ↑ | helpful facts kept ↑ | median gate latency | gate cost |
+|---|---|---|---|---|---|---|
+| tags | 59/260 (23%) | 0/60 | 0/7 | 52/52 | n/a | $0.00000 |
+| llm_gate | 157/260 (60%) | 5/60 | 2/7 | 26/52 | 6470 ms | $0.00000 |
+| tact | 215/260 (83%) | 0/60 | 4/7 | 32/52 | 10641 ms | $0.00000 |
+| tact_split | 193/260 (74%) | 1/60 | 0/7 | 29/52 | 17844 ms | $0.00000 |
+
+## Gate decisions vs. hand labels (24 held-out scenarios)
+
+Scored on the prefiltered candidates; memories labelled "either" are not scored.
+
+| gate | 3-way accuracy | sensitive facts it let be mentioned ↓ | sensitive facts the user raised, mentioned ↑ | helpful facts kept ↑ | median gate latency | gate cost |
+|---|---|---|---|---|---|---|
+| tags | 35/181 (19%) | 0/40 | 0/4 | 34/34 | n/a | $0.00000 |
+| llm_gate | 110/181 (61%) | 5/40 | 2/4 | 17/34 | 6657 ms | $0.00000 |
+| tact | 153/181 (85%) | 0/40 | 2/4 | 21/34 | 10722 ms | $0.00000 |
+| tact_split | 139/181 (77%) | 0/40 | 0/4 | 21/34 | 17772 ms | $0.00000 |
+
+
