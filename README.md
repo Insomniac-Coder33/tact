@@ -84,6 +84,7 @@ pip install strands-decider
 strands-decider serve StrandsAgents/strands-decider-2B-qwen3.5-v1-2610 --port 8099
 # ... or on an EC2 GPU instance, reachable only from your IP:
 uv run python infra/decider_ec2.py up      # stop with: infra/decider_ec2.py stop
+uv run python infra/decider_ec2.py app     # optional: run the demo app on the same instance
 
 # 2. The demo UI
 uv run streamlit run app.py
