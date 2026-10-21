@@ -46,3 +46,34 @@ Scored on the prefiltered candidates; memories labelled "either" are not scored.
 - **rag**, s23 "Any tips to sleep better? I've been stressed.": m16
 
 Gate tables: run `eval/results/run-20261021-202009.json`. Replies: run `eval/results/run-20261021-205552.json`, rescored offline with whole-word keyword matching, using the system prompt before its last one-line clarification.
+
+## Write side: which stored memories does a new message make outdated?
+
+27 messages × 3 stored memories, one decider call per message. Policy: retire at P(outdated) ≥ 0.6, flag as "may be out of date" from 0.4; a message that repeats a memory (P(repeat) ≥ 0.5) isn't stored again. With the past-event guard, a memory with P(past event) ≥ 0.5 is never retired, only flagged. Both policies are scored on the same decider answers.
+
+| cases | policy | 3-way accuracy | outdated memories retired ↑ | … or flagged | still-true memories wrongly retired ↓ | … or flagged | repeats caught |
+|---|---|---|---|---|---|---|---|
+| dev (used to write the question) | no guard | 22/25 (88%) | 5/6 | 0/6 | 1/19 | 0/19 | 0/1 |
+| dev (used to write the question) | **past-event guard** | 22/25 (88%) | 4/6 | 1/6 | 0/19 | 1/19 | 0/1 |
+| test (never tuned on) | no guard | 45/52 (87%) | 7/11 | 2/11 | 1/41 | 1/41 | 1/3 |
+| test (never tuned on) | **past-event guard** | 45/52 (87%) | 5/11 | 4/11 | 0/41 | 2/41 | 1/3 |
+| all | no guard | 67/77 (87%) | 12/17 | 2/17 | 2/60 | 1/60 | 1/4 |
+| all | **past-event guard** | 67/77 (87%) | 9/17 | 5/17 | 0/60 | 3/60 | 1/4 |
+
+Median decider latency per message (3 memories): 7787 ms.
+
+Misses (outdated memories kept, still-true memories retired or flagged):
+
+- c02 "I had to quit marathon training, my knee is injured." → m06 labelled outdated, doubt at P(outdated)=0.67
+- c06 "I finally bought the Royal Enfield last weekend!" → m15 labelled outdated, keep at P(outdated)=0.11
+- c09 "I got the master's admit from TU Munich, I'm moving to Germany in April!" → m26 labelled outdated, keep at P(outdated)=0.18
+- c10 "My dad is fully recovered now, he's back to his morning walks." → m07 labelled outdated, keep at P(outdated)=0.28
+- c13 "Rohan moved back from Berlin to Pune last week." → m18 labelled outdated, doubt at P(outdated)=0.77
+- c14 "I've given up on French, Duolingo was boring." → m22 labelled outdated, doubt at P(outdated)=0.59
+- c22 "I'm now working as a data engineer instead of an analyst, same company." → m26 labelled unaffected, doubt at P(outdated)=0.53
+- c23 "Big news: I just moved to Bangalore for a new job at a bank!" → m08 labelled unaffected, doubt at P(outdated)=0.69
+- c24 "I got a new job as a senior analyst at Flipkart!" → m03 labelled outdated, doubt at P(outdated)=0.65
+- c24 "I got a new job as a senior analyst at Flipkart!" → m08 labelled unaffected, doubt at P(outdated)=0.74
+- c26 "I've stopped seeing my therapist, I feel much better now." → m16 labelled outdated, doubt at P(outdated)=0.55
+
+How the question got here (all runs saved in `eval/results/`): the first wording had no past-event guard (`curator-v1.json`, 22 messages). A live test then retired "was laid off in March 2025" after "I got a new job", so 5 messages about past events were added (c23–c27, written before the next run). Writing "a past event stays true" into the options made every P(outdated) go up and gave 4 wrong retirements (`curator-v2-rejected.json`), so it became a separate yes/no question instead (`curator.json`).

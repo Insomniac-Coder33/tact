@@ -20,6 +20,9 @@ class MemoryStore:
     def all(self) -> list[dict]:
         return list(self.memories)
 
+    def active(self) -> list[dict]:
+        return [m for m in self.memories if not m.get("retired_by")]
+
     def add(self, text: str) -> dict:
         memory = {"id": f"m{len(self.memories) + 1:02d}", "text": text}
         self.memories.append(memory)
@@ -32,10 +35,22 @@ class MemoryStore:
         memory["locked"] = True
         return memory
 
+    def retire(self, memory_id: str, replaced_by: str) -> dict:
+        """The curator found the memory out of date. It leaves retrieval but stays in the
+        list, so the change can be shown and undone."""
+        memory = next(m for m in self.memories if m["id"] == memory_id)
+        memory["retired_by"] = replaced_by
+        return memory
+
+    def doubt(self, memory_id: str) -> dict:
+        memory = next(m for m in self.memories if m["id"] == memory_id)
+        memory["stale"] = True
+        return memory
+
     def candidates(self, query: str, k: int = 8) -> list[dict]:
-        """Top-k memories by cosine similarity. Similar is not the same as useful or
+        """Top-k active memories by cosine similarity. Similar is not the same as useful or
         appropriate; that judgement is left to the MemoryGate."""
         q = bedrock.embed(query)
-        scored = [(float(np.dot(q, bedrock.embed(m["text"]))), m) for m in self.memories]
+        scored = [(float(np.dot(q, bedrock.embed(m["text"]))), m) for m in self.active()]
         scored.sort(key=lambda s: s[0], reverse=True)
         return [m for _, m in scored[:k]]

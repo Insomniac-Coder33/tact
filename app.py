@@ -28,6 +28,7 @@ DEMOS = [
     ("🐶 A puppy?", "I'm thinking of getting a puppy. Thoughts?"),
     ("💔 Missing Biscuit", "It's been a month since Biscuit died and I still can't walk past Pashan lake. How do I cope?"),
     ("🔒 Drop a subject", "Please don't bring up Meera again."),
+    ("🏠 I moved", "Big news: I just moved to Bangalore for a new job at a bank!"),
 ]
 HOST = "Amazon Bedrock" if bedrock.PROVIDER == "bedrock" else "Ollama on EC2"
 EMBEDDER = "Titan embeddings" if bedrock.PROVIDER == "bedrock" else "Embeddings"
@@ -81,9 +82,13 @@ with st.sidebar:
         st.session_state.design = design
         del st.session_state["tact"]
         st.rerun()
-    with st.expander(f"What Tact remembers about Arjun ({len(tact.store.memories)})"):
+    with st.expander(f"What Tact remembers about Arjun ({len(tact.store.active())})"):
         for m in tact.store.memories:
-            st.markdown(f"`{m['id']}` {'🔒 ' if m.get('locked') else ''}{m['text']}")
+            if m.get("retired_by"):
+                st.markdown(f"`{m['id']}` ~~{m['text']}~~ → `{m['retired_by']}`")
+            else:
+                flags = ("🔒 " if m.get("locked") else "") + ("❔ " if m.get("stale") else "")
+                st.markdown(f"`{m['id']}` {flags}{m['text']}")
     if st.button("New conversation"):
         del st.session_state["tact"]
         st.rerun()
@@ -116,6 +121,29 @@ def render_panel(turn: dict) -> None:
     st.caption("Bar: 🟩 P(mention) 🟨 P(quiet) ⬜ P(skip)")
     if turn.get("remembered"):
         st.info(f"📝 Remembered (P={turn['p_remember']:.2f}): {turn['remembered']['text']}")
+    render_curation(turn.get("curation"))
+
+
+def render_curation(cur) -> None:
+    """What the new message did to the memories already stored (the write-side decision)."""
+    if cur is None:
+        return
+    st.markdown("#### What the new fact changed")
+    if cur.error:
+        st.error(f"Decider unreachable ({cur.error}). Fail-safe: no stored memory was changed.")
+        return
+    st.caption(f"{len(cur.updates)} nearby memories checked in one call · {cur.latency_ms:.0f} ms")
+    if not cur.store_new:
+        st.caption("↳ The message repeats something Tact already knows, so nothing new was stored.")
+    label = {"retire": "🗑️ **retired**, out of date", "doubt": "❔ **kept, flagged** as maybe out of date",
+             "keep": "✅ still true"}
+    for u in sorted(cur.updates, key=lambda u: -u.probabilities["outdated"]):
+        if u.action == "keep" and u.probabilities["outdated"] < 0.25:
+            continue
+        why = (f" · P(past event)={u.p_past:.2f}, and the past stays true"
+               if u.action == "doubt" and u.probabilities["outdated"] >= 0.6 else "")
+        st.markdown(f"{label[u.action]} · P(outdated)={u.probabilities['outdated']:.2f}{why} · "
+                    f"<small>{u.text}</small>", unsafe_allow_html=True)
 
 
 with chat_col:
@@ -170,6 +198,8 @@ with panel_col:
             "2. **Strands Decider 2B** reads the conversation once and gives each memory "
             "P(*mention*), P(*quiet*), P(*skip*). One batched call, which also reads the tone "
             "and spots requests to remember or forget.\n"
+            "   When there's something new to remember, a second call checks which stored "
+            "memories it makes **out of date** (\"I moved to Bangalore\" retires \"lives in Pune\").\n"
             "3. An **expected-cost policy** in plain Python picks the action: saying something "
             "painful costs 3× more than missing a detail, so doubt means *quiet*.\n"
             f"4. **{bedrock.CHAT_MODEL}** ({HOST}) writes the reply, seeing only what the gate allowed."

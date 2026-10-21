@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "patterns" / "memory_gate"))
 sys.path.insert(0, str(ROOT / "src"))
 
-from memory_gate import MemoryGate, render_context  # noqa: E402
+from memory_gate import MemoryCurator, MemoryGate, render_context  # noqa: E402
 
 MEMORIES = [
     {"id": "veg", "text": "The user is vegetarian."},
@@ -144,6 +144,57 @@ class ForgetTest(unittest.TestCase):
         self.assertNotEqual(ex.action, "mention")
         self.assertEqual(hook.last_tone, ("gentle", .8))
         self.assertIn("gentle", event.agent.system_prompt)
+
+
+def update_answer(outdated: float, repeat: float, unaffected: float) -> dict:
+    return {"type": "choice", "probabilities":
+            {"outdated": outdated, "repeat": repeat, "unaffected": unaffected}}
+
+
+class CuratorTest(unittest.TestCase):
+    PUNE = [{"id": "home", "text": "The user lives in Pune."},
+            {"id": "race", "text": "The user is training for the Pune half marathon."},
+            {"id": "seat", "text": "The user prefers aisle seats."}]
+
+    NOT_PAST = {"home:past": {"noul": .1}, "race:past": {"noul": .1}, "seat:past": {"noul": .1}}
+
+    def test_three_bands_retire_doubt_keep(self):
+        stub = StubDecider({"home": update_answer(.86, .07, .07), "race": update_answer(.45, .15, .40),
+                            "seat": update_answer(.05, .10, .85), **self.NOT_PAST})
+        result = MemoryCurator(stub).run([("user", "I moved to Bangalore.")], self.PUNE)
+        self.assertEqual(len(stub.calls), 1)  # all memories, both questions, one request
+        self.assertEqual(len(stub.calls[0][1]), 6)
+        self.assertEqual({u.memory_id: u.action for u in result.updates},
+                         {"home": "retire", "race": "doubt", "seat": "keep"})
+        self.assertTrue(result.store_new)
+
+    def test_a_past_event_is_flagged_not_retired(self):
+        laid_off = {"id": "job", "text": "The user was laid off in March 2025."}
+        stub = StubDecider({"job": update_answer(.72, .03, .25), "job:past": {"noul": .9}})
+        result = MemoryCurator(stub).run([("user", "I got a new job!")], [laid_off])
+        self.assertEqual(result.updates[0].action, "doubt")
+        stub = StubDecider({"job": update_answer(.72, .03, .25)})
+        result = MemoryCurator(stub, past_at=None).run([("user", "I got a new job!")], [laid_off])
+        self.assertEqual(result.updates[0].action, "retire")  # what happens without the guard
+
+    def test_a_repeat_is_not_stored_again(self):
+        stub = StubDecider({"home": update_answer(.05, .80, .15), "race": update_answer(.05, .1, .85),
+                            "seat": update_answer(.05, .1, .85), **self.NOT_PAST})
+        result = MemoryCurator(stub).run([("user", "I live in Pune, by the way.")], self.PUNE)
+        self.assertFalse(result.store_new)
+
+    def test_unreachable_decider_changes_nothing(self):
+        def down(state, questions):
+            raise ConnectionError("refused")
+        result = MemoryCurator(down).safe_run([("user", "I moved.")], self.PUNE)
+        self.assertEqual(result.updates, [])
+        self.assertTrue(result.store_new)
+        self.assertIn("ConnectionError", result.error)
+
+    def test_stale_memory_is_flagged_for_the_llm(self):
+        stub = StubDecider({"race": choice_answer(.9, .05, .05)})
+        result = MemoryGate(stub).run([("user", "Plan my January?")], [{**self.PUNE[1], "stale": True}])
+        self.assertIn("may be out of date", render_context(result))
 
 
 if __name__ == "__main__":

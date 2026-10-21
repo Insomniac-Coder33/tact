@@ -1,0 +1,618 @@
+[
+ {
+  "id": "c01",
+  "split": "dev",
+  "message": "I just moved to Bangalore for a new job at a bank.",
+  "labels": {
+   "m03": "outdated",
+   "m06": "either",
+   "m20": "unaffected"
+  },
+  "latency_ms": 4264.0632999828085,
+  "probabilities": {
+   "m03": {
+    "outdated": 0.8643,
+    "repeat": 0.0703,
+    "unaffected": 0.0654
+   },
+   "m06": {
+    "outdated": 0.6509,
+    "repeat": 0.1329,
+    "unaffected": 0.2162
+   },
+   "m20": {
+    "outdated": 0.29,
+    "repeat": 0.1974,
+    "unaffected": 0.5126
+   }
+  }
+ },
+ {
+  "id": "c02",
+  "split": "dev",
+  "message": "I had to quit marathon training, my knee is injured.",
+  "labels": {
+   "m06": "outdated",
+   "m09": "unaffected",
+   "m19": "unaffected"
+  },
+  "latency_ms": 4082.2992000030354,
+  "probabilities": {
+   "m06": {
+    "outdated": 0.6664,
+    "repeat": 0.1363,
+    "unaffected": 0.1973
+   },
+   "m09": {
+    "outdated": 0.2432,
+    "repeat": 0.2342,
+    "unaffected": 0.5226
+   },
+   "m19": {
+    "outdated": 0.1646,
+    "repeat": 0.2979,
+    "unaffected": 0.5375
+   }
+  }
+ },
+ {
+  "id": "c03",
+  "split": "dev",
+  "message": "Just so you know, I don't eat meat.",
+  "labels": {
+   "m02": "repeat",
+   "m01": "unaffected",
+   "m17": "unaffected"
+  },
+  "latency_ms": 4116.134400013834,
+  "probabilities": {
+   "m02": {
+    "outdated": 0.1103,
+    "repeat": 0.4131,
+    "unaffected": 0.4766
+   },
+   "m01": {
+    "outdated": 0.0846,
+    "repeat": 0.3354,
+    "unaffected": 0.58
+   },
+   "m17": {
+    "outdated": 0.0624,
+    "repeat": 0.2244,
+    "unaffected": 0.7132
+   }
+  }
+ },
+ {
+  "id": "c04",
+  "split": "dev",
+  "message": "We adopted a new puppy called Coco!",
+  "labels": {
+   "m05": "unaffected",
+   "m30": "unaffected",
+   "m19": "unaffected"
+  },
+  "latency_ms": 4572.404500038829,
+  "probabilities": {
+   "m05": {
+    "outdated": 0.1728,
+    "repeat": 0.1682,
+    "unaffected": 0.659
+   },
+   "m30": {
+    "outdated": 0.1073,
+    "repeat": 0.1519,
+    "unaffected": 0.7407
+   },
+   "m19": {
+    "outdated": 0.0484,
+    "repeat": 0.155,
+    "unaffected": 0.7966
+   }
+  }
+ },
+ {
+  "id": "c05",
+  "split": "dev",
+  "message": "Kavya's wedding got moved to February because of the venue.",
+  "labels": {
+   "m12": "outdated",
+   "m11": "unaffected",
+   "m29": "unaffected"
+  },
+  "latency_ms": 4596.530400041956,
+  "probabilities": {
+   "m12": {
+    "outdated": 0.8102,
+    "repeat": 0.0838,
+    "unaffected": 0.106
+   },
+   "m11": {
+    "outdated": 0.1742,
+    "repeat": 0.258,
+    "unaffected": 0.5678
+   },
+   "m29": {
+    "outdated": 0.2033,
+    "repeat": 0.1597,
+    "unaffected": 0.637
+   }
+  }
+ },
+ {
+  "id": "c06",
+  "split": "dev",
+  "message": "I finally bought the Royal Enfield last weekend!",
+  "labels": {
+   "m15": "outdated",
+   "m11": "unaffected",
+   "m24": "unaffected"
+  },
+  "latency_ms": 5426.276999991387,
+  "probabilities": {
+   "m15": {
+    "outdated": 0.1142,
+    "repeat": 0.3239,
+    "unaffected": 0.5618
+   },
+   "m11": {
+    "outdated": 0.0799,
+    "repeat": 0.2004,
+    "unaffected": 0.7197
+   },
+   "m24": {
+    "outdated": 0.0914,
+    "repeat": 0.2183,
+    "unaffected": 0.6903
+   }
+  }
+ },
+ {
+  "id": "c07",
+  "split": "dev",
+  "message": "I've started learning violin as well.",
+  "labels": {
+   "m09": "unaffected",
+   "m22": "unaffected",
+   "m25": "unaffected"
+  },
+  "latency_ms": 4807.419000018854,
+  "probabilities": {
+   "m09": {
+    "outdated": 0.2117,
+    "repeat": 0.2398,
+    "unaffected": 0.5484
+   },
+   "m22": {
+    "outdated": 0.0724,
+    "repeat": 0.242,
+    "unaffected": 0.6856
+   },
+   "m25": {
+    "outdated": 0.0883,
+    "repeat": 0.2317,
+    "unaffected": 0.6799
+   }
+  }
+ },
+ {
+  "id": "c08",
+  "split": "dev",
+  "message": "I switched to a MacBook with an M4 chip.",
+  "labels": {
+   "m28": "outdated",
+   "m20": "unaffected",
+   "m10": "unaffected"
+  },
+  "latency_ms": 4850.589099980425,
+  "probabilities": {
+   "m28": {
+    "outdated": 0.847,
+    "repeat": 0.0809,
+    "unaffected": 0.0722
+   },
+   "m20": {
+    "outdated": 0.0994,
+    "repeat": 0.1687,
+    "unaffected": 0.7319
+   },
+   "m10": {
+    "outdated": 0.1188,
+    "repeat": 0.232,
+    "unaffected": 0.6492
+   }
+  }
+ },
+ {
+  "id": "c09",
+  "split": "test",
+  "message": "I got the master's admit from TU Munich, I'm moving to Germany in April!",
+  "labels": {
+   "m26": "outdated",
+   "m03": "either",
+   "m22": "unaffected"
+  },
+  "latency_ms": 4409.1146000428125,
+  "probabilities": {
+   "m26": {
+    "outdated": 0.1826,
+    "repeat": 0.2424,
+    "unaffected": 0.575
+   },
+   "m03": {
+    "outdated": 0.2402,
+    "repeat": 0.2393,
+    "unaffected": 0.5205
+   },
+   "m22": {
+    "outdated": 0.2971,
+    "repeat": 0.2498,
+    "unaffected": 0.4531
+   }
+  }
+ },
+ {
+  "id": "c10",
+  "split": "test",
+  "message": "My dad is fully recovered now, he's back to his morning walks.",
+  "labels": {
+   "m07": "outdated",
+   "m21": "unaffected",
+   "m13": "unaffected"
+  },
+  "latency_ms": 4947.729300009087,
+  "probabilities": {
+   "m07": {
+    "outdated": 0.2819,
+    "repeat": 0.2515,
+    "unaffected": 0.4666
+   },
+   "m21": {
+    "outdated": 0.0945,
+    "repeat": 0.2652,
+    "unaffected": 0.6404
+   },
+   "m13": {
+    "outdated": 0.162,
+    "repeat": 0.2478,
+    "unaffected": 0.5902
+   }
+  }
+ },
+ {
+  "id": "c11",
+  "split": "test",
+  "message": "I've started eating eggs again.",
+  "labels": {
+   "m02": "outdated",
+   "m14": "unaffected",
+   "m17": "unaffected"
+  },
+  "latency_ms": 6943.837099999655,
+  "probabilities": {
+   "m02": {
+    "outdated": 0.6745,
+    "repeat": 0.1614,
+    "unaffected": 0.164
+   },
+   "m14": {
+    "outdated": 0.0846,
+    "repeat": 0.2135,
+    "unaffected": 0.7019
+   },
+   "m17": {
+    "outdated": 0.0571,
+    "repeat": 0.2258,
+    "unaffected": 0.717
+   }
+  }
+ },
+ {
+  "id": "c12",
+  "split": "test",
+  "message": "I'm still saving for that Royal Enfield, almost there!",
+  "labels": {
+   "m15": "repeat",
+   "m11": "unaffected",
+   "m24": "unaffected"
+  },
+  "latency_ms": 6064.329799963161,
+  "probabilities": {
+   "m15": {
+    "outdated": 0.0702,
+    "repeat": 0.4411,
+    "unaffected": 0.4887
+   },
+   "m11": {
+    "outdated": 0.1099,
+    "repeat": 0.2877,
+    "unaffected": 0.6024
+   },
+   "m24": {
+    "outdated": 0.1081,
+    "repeat": 0.3117,
+    "unaffected": 0.5802
+   }
+  }
+ },
+ {
+  "id": "c13",
+  "split": "test",
+  "message": "Rohan moved back from Berlin to Pune last week.",
+  "labels": {
+   "m18": "outdated",
+   "m03": "unaffected",
+   "m26": "unaffected"
+  },
+  "latency_ms": 4424.18530001305,
+  "probabilities": {
+   "m18": {
+    "outdated": 0.769,
+    "repeat": 0.1175,
+    "unaffected": 0.1135
+   },
+   "m03": {
+    "outdated": 0.1855,
+    "repeat": 0.2826,
+    "unaffected": 0.5319
+   },
+   "m26": {
+    "outdated": 0.2331,
+    "repeat": 0.1821,
+    "unaffected": 0.5849
+   }
+  }
+ },
+ {
+  "id": "c14",
+  "split": "test",
+  "message": "I've given up on French, Duolingo was boring.",
+  "labels": {
+   "m22": "outdated",
+   "m25": "unaffected",
+   "m09": "unaffected"
+  },
+  "latency_ms": 4355.919599998742,
+  "probabilities": {
+   "m22": {
+    "outdated": 0.5902,
+    "repeat": 0.2152,
+    "unaffected": 0.1947
+   },
+   "m25": {
+    "outdated": 0.1419,
+    "repeat": 0.2548,
+    "unaffected": 0.6033
+   },
+   "m09": {
+    "outdated": 0.1286,
+    "repeat": 0.2559,
+    "unaffected": 0.6155
+   }
+  }
+ },
+ {
+  "id": "c15",
+  "split": "test",
+  "message": "I now prefer window seats, I like looking outside.",
+  "labels": {
+   "m10": "outdated",
+   "m23": "unaffected",
+   "m19": "unaffected"
+  },
+  "latency_ms": 4144.026399997529,
+  "probabilities": {
+   "m10": {
+    "outdated": 0.8811,
+    "repeat": 0.0583,
+    "unaffected": 0.0606
+   },
+   "m23": {
+    "outdated": 0.2487,
+    "repeat": 0.2073,
+    "unaffected": 0.544
+   },
+   "m19": {
+    "outdated": 0.3306,
+    "repeat": 0.2215,
+    "unaffected": 0.448
+   }
+  }
+ },
+ {
+  "id": "c16",
+  "split": "test",
+  "message": "I did my first marathon training run in the rain today and loved it.",
+  "labels": {
+   "m06": "unaffected",
+   "m13": "unaffected",
+   "m09": "unaffected"
+  },
+  "latency_ms": 4259.516700054519,
+  "probabilities": {
+   "m06": {
+    "outdated": 0.0924,
+    "repeat": 0.1756,
+    "unaffected": 0.732
+   },
+   "m13": {
+    "outdated": 0.085,
+    "repeat": 0.1409,
+    "unaffected": 0.7741
+   },
+   "m09": {
+    "outdated": 0.0665,
+    "repeat": 0.1473,
+    "unaffected": 0.7862
+   }
+  }
+ },
+ {
+  "id": "c17",
+  "split": "test",
+  "message": "My rent went up to 26,000 rupees this month.",
+  "labels": {
+   "m24": "outdated",
+   "m11": "unaffected",
+   "m15": "unaffected"
+  },
+  "latency_ms": 4346.603799960576,
+  "probabilities": {
+   "m24": {
+    "outdated": 0.6953,
+    "repeat": 0.1263,
+    "unaffected": 0.1783
+   },
+   "m11": {
+    "outdated": 0.1623,
+    "repeat": 0.2053,
+    "unaffected": 0.6324
+   },
+   "m15": {
+    "outdated": 0.0985,
+    "repeat": 0.2232,
+    "unaffected": 0.6783
+   }
+  }
+ },
+ {
+  "id": "c18",
+  "split": "test",
+  "message": "I'm allergic to peanuts, please remember that.",
+  "labels": {
+   "m01": "repeat",
+   "m14": "unaffected",
+   "m17": "unaffected"
+  },
+  "latency_ms": 4082.2572999750264,
+  "probabilities": {
+   "m01": {
+    "outdated": 0.0738,
+    "repeat": 0.5283,
+    "unaffected": 0.3979
+   },
+   "m14": {
+    "outdated": 0.1114,
+    "repeat": 0.4504,
+    "unaffected": 0.4382
+   },
+   "m17": {
+    "outdated": 0.0677,
+    "repeat": 0.3856,
+    "unaffected": 0.5467
+   }
+  }
+ },
+ {
+  "id": "c19",
+  "split": "test",
+  "message": "I've become a total morning person since I started running at 6 am.",
+  "labels": {
+   "m13": "outdated",
+   "m06": "unaffected",
+   "m09": "unaffected"
+  },
+  "latency_ms": 4130.88070001686,
+  "probabilities": {
+   "m13": {
+    "outdated": 0.6291,
+    "repeat": 0.1551,
+    "unaffected": 0.2158
+   },
+   "m06": {
+    "outdated": 0.1007,
+    "repeat": 0.2683,
+    "unaffected": 0.631
+   },
+   "m09": {
+    "outdated": 0.1156,
+    "repeat": 0.2707,
+    "unaffected": 0.6137
+   }
+  }
+ },
+ {
+  "id": "c20",
+  "split": "test",
+  "message": "My sister's wedding is still on for 14 December, I'm so excited.",
+  "labels": {
+   "m12": "repeat",
+   "m29": "unaffected",
+   "m11": "unaffected"
+  },
+  "latency_ms": 4440.1001000078395,
+  "probabilities": {
+   "m12": {
+    "outdated": 0.1056,
+    "repeat": 0.3708,
+    "unaffected": 0.5235
+   },
+   "m29": {
+    "outdated": 0.1177,
+    "repeat": 0.2047,
+    "unaffected": 0.6776
+   },
+   "m11": {
+    "outdated": 0.0947,
+    "repeat": 0.2565,
+    "unaffected": 0.6488
+   }
+  }
+ },
+ {
+  "id": "c21",
+  "split": "test",
+  "message": "I started a new hobby: rock climbing at the indoor gym.",
+  "labels": {
+   "m19": "either",
+   "m09": "unaffected",
+   "m06": "unaffected"
+  },
+  "latency_ms": 4044.833199994173,
+  "probabilities": {
+   "m19": {
+    "outdated": 0.1718,
+    "repeat": 0.2299,
+    "unaffected": 0.5983
+   },
+   "m09": {
+    "outdated": 0.2779,
+    "repeat": 0.1523,
+    "unaffected": 0.5698
+   },
+   "m06": {
+    "outdated": 0.1165,
+    "repeat": 0.1689,
+    "unaffected": 0.7146
+   }
+  }
+ },
+ {
+  "id": "c22",
+  "split": "test",
+  "message": "I'm now working as a data engineer instead of an analyst, same company.",
+  "labels": {
+   "m03": "outdated",
+   "m20": "unaffected",
+   "m26": "unaffected"
+  },
+  "latency_ms": 4148.921100015286,
+  "probabilities": {
+   "m03": {
+    "outdated": 0.9039,
+    "repeat": 0.0555,
+    "unaffected": 0.0406
+   },
+   "m20": {
+    "outdated": 0.2872,
+    "repeat": 0.2227,
+    "unaffected": 0.4901
+   },
+   "m26": {
+    "outdated": 0.5324,
+    "repeat": 0.2284,
+    "unaffected": 0.2391
+   }
+  }
+ }
+]

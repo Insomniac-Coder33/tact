@@ -21,6 +21,11 @@ question only adds its own tokens, so judging 8 memories costs far less than 8 c
 The decider only returns probabilities. What happens next is plain Python: an
 expected-cost policy (`MemoryGate.decide`) that knows a painful mention is much worse
 than a missed detail. Tune the cost table without retraining anything.
+
+The write side has its own decision. When the user tells the agent something new,
+`MemoryCurator` asks, for each similar memory, whether the message makes it outdated,
+repeats it, or leaves it alone, so "I moved to Bangalore" retires "lives in Pune"
+instead of leaving two contradicting facts in the store.
 """
 
 from __future__ import annotations
@@ -91,6 +96,7 @@ class Verdict:
     action: str                      # what the policy decided: mention / quiet / skip
     reason: str
     locked: bool = False             # the user asked never to bring this up
+    stale: bool = False              # the curator suspects it may be out of date
 
 
 @dataclass
@@ -207,7 +213,7 @@ class MemoryGate:
             action, reason = self.decide(p, locked)
             top = max(p, key=p.get)
             verdicts.append(Verdict(m["id"], m["text"], top, confidence_of(p), p, action,
-                                    reason, locked))
+                                    reason, locked, bool(m.get("stale"))))
         tokens = getattr(self.ask, "last_usage", {}).get("input_tokens", 0)
         return GateResult(verdicts, latency_ms, tokens, dict(answers))
 
@@ -223,15 +229,119 @@ def render_context(result: GateResult) -> str:
     """Turn a gate result into the memory block for the LLM's system prompt."""
     mention = result.by_action("mention")
     quiet = result.by_action("quiet")
+
+    def line(v: Verdict) -> str:
+        return f"- {v.text}" + (" (may be out of date: don't rely on it)" if v.stale else "")
+
     parts = []
     if mention:
         parts.append("Things you remember about the user that you MAY bring up if useful:\n"
-                     + "\n".join(f"- {v.text}" for v in mention))
+                     + "\n".join(line(v) for v in mention))
     if quiet:
         parts.append("Sensitive background. Let it shape your answer (avoid suggestions that "
                      "would hurt), but NEVER mention, hint at or allude to these facts:\n"
-                     + "\n".join(f"- {v.text}" for v in quiet))
+                     + "\n".join(line(v) for v in quiet))
     return "\n\n".join(parts) if parts else "You don't remember anything relevant to this message."
+
+
+# --- the write side: does a new message make an old memory outdated? ------------------
+UPDATE_INSTRUCTIONS = (
+    "The user just sent the message above. The assistant remembers this fact about the user:\n"
+    "{memory}\nWhat does the user's message mean for this remembered fact?"
+)
+UPDATE_OPTIONS = {
+    "outdated": "the message shows the fact is no longer true: something changed (a move, a new "
+                "job, a cancelled or changed plan, a new preference), so the old fact should be replaced",
+    "repeat": "the message says the same thing as the fact again, so there is nothing new to store",
+    "unaffected": "the fact is still true after this message; the message is about something else "
+                  "or only adds a new detail alongside it",
+}
+# A past event stays true when life moves on, but "I got a new job" still pushed
+# P(outdated) for "was laid off in March 2025" to 0.72. Writing that into the options above
+# made things worse (every P(outdated) went up), so it is a separate yes/no question.
+PAST_EVENT = (
+    "Is this remembered fact about the user a past event that is over and done, rather than "
+    "their current situation, plan, habit or preference?\nRemembered fact: {memory}",
+    {"true": "it describes something that happened and finished, which stays true forever",
+     "false": "it describes how things are now or what the user plans or prefers, which can change"},
+)
+
+
+@dataclass
+class Update:
+    memory_id: str
+    text: str
+    probabilities: dict[str, float]  # P(outdated), P(repeat), P(unaffected)
+    action: str                      # retire / doubt / keep
+    p_past: float = 0.0              # P(the memory is a finished past event)
+
+
+@dataclass
+class CurateResult:
+    updates: list[Update]
+    store_new: bool                  # False when the message only repeats a known fact
+    latency_ms: float
+    raw: dict[str, Any] = field(default_factory=dict)
+    error: str | None = None
+
+    def by_action(self, action: str) -> list[Update]:
+        return [u for u in self.updates if u.action == action]
+
+
+class MemoryCurator:
+    """Decide what a new message does to the memories that are already stored.
+
+    Three bands instead of one threshold, because deleting a true memory and keeping a
+    stale one are both mistakes, and the decider is not always sure which one it is:
+
+        P(outdated) >= retire_at        retire: the memory leaves the store (kept in history)
+        doubt_at <= P(outdated) < ...   doubt: keep it, but tell the LLM it may be out of date
+        below doubt_at                  keep
+
+    If any memory is a likely repeat (P(repeat) >= repeat_at), the new fact isn't stored.
+    A memory that is likely a finished past event (P(past) >= past_at) is never retired:
+    at most it is flagged. Set `past_at=None` to skip that question.
+    """
+
+    def __init__(self, ask: AskFn, retire_at: float = 0.6, doubt_at: float = 0.4,
+                 repeat_at: float = 0.5, past_at: float | None = 0.5):
+        self.ask = ask
+        self.retire_at, self.doubt_at, self.repeat_at = retire_at, doubt_at, repeat_at
+        self.past_at = past_at
+
+    def decide(self, probabilities: Mapping[str, float], p_past: float = 0.0) -> str:
+        p = probabilities.get("outdated", 0.0)
+        action = "retire" if p >= self.retire_at else "doubt" if p >= self.doubt_at else "keep"
+        if action == "retire" and self.past_at is not None and p_past >= self.past_at:
+            return "doubt"
+        return action
+
+    def run(self, conversation: Sequence[tuple[str, str]],
+            memories: Sequence[Mapping[str, Any]]) -> CurateResult:
+        if not memories:
+            return CurateResult([], True, 0.0)
+        questions = {m["id"]: choice(UPDATE_INSTRUCTIONS.format(memory=m["text"]), UPDATE_OPTIONS)
+                     for m in memories}
+        if self.past_at is not None:
+            questions.update({f"{m['id']}:past": noul(PAST_EVENT[0].format(memory=m["text"]), PAST_EVENT[1])
+                              for m in memories})
+        start = time.perf_counter()
+        answers = self.ask(MemoryGate.render_state(conversation), questions)
+        latency_ms = (time.perf_counter() - start) * 1000
+        updates = []
+        for m in memories:
+            p = {k: float(answers[m["id"]]["probabilities"].get(k, 0.0)) for k in UPDATE_OPTIONS}
+            p_past = float(answers.get(f"{m['id']}:past", {}).get("noul", 0.0))
+            updates.append(Update(m["id"], m["text"], p, self.decide(p, p_past), p_past))
+        repeat = any(u.probabilities["repeat"] >= self.repeat_at for u in updates)
+        return CurateResult(updates, not repeat, latency_ms, dict(answers))
+
+    def safe_run(self, *args, **kwargs) -> CurateResult:
+        """`run`, but if the decider is unreachable, change nothing and store the new fact."""
+        try:
+            return self.run(*args, **kwargs)
+        except Exception as e:  # noqa: BLE001 - failing safe means: touch no stored memory
+            return CurateResult([], True, 0.0, error=f"{type(e).__name__}: {e}")
 
 
 if __name__ == "__main__":

@@ -12,7 +12,9 @@ from strands.interventions import InterventionHandler, Transform
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "patterns" / "memory_gate"))
 
-from memory_gate import GateResult, MemoryGate, choice, http_ask, noul, render_context  # noqa: E402
+from memory_gate import (  # noqa: E402
+    CurateResult, GateResult, MemoryCurator, MemoryGate, choice, http_ask, noul, render_context,
+)
 
 from . import bedrock  # noqa: E402
 from .memory import MemoryStore  # noqa: E402
@@ -25,11 +27,14 @@ SYSTEM_PROMPT = (
 
 # These ride along in the same decider request as the memory questions, so they cost no
 # extra call: the conversation is read once, and each question only adds its own tokens.
+# Asking "is this worth remembering?" made the decider hesitate (0 of 10 news messages
+# reached 0.7). Asking whether the user is *sharing* rather than *asking* caught 10 of 10,
+# with no false alarms on 8 plain requests.
 REMEMBER = noul(
-    "Does the user's latest message reveal a new, lasting fact about the user "
-    "(a preference, plan, constraint or life event) worth remembering?",
-    {"true": "the latest message states something about the user that will still matter next week",
-     "false": "the latest message is only a request or small talk, with nothing lasting to store"},
+    "Is the user's latest message mainly telling the assistant news or a fact about themselves, "
+    "rather than asking for something?",
+    {"true": "the user is sharing news, a change, or a fact about their own life",
+     "false": "the user is asking a question or making a request, without sharing anything new about themselves"},
 )
 FORGET = noul(
     "Is the user asking the assistant to stop bringing up, or to forget, something about them?",
@@ -47,6 +52,7 @@ FORGET_TARGET = ("Is the user asking the assistant not to bring up this remember
                  "Remembered fact: {memory}")
 
 REMEMBER_AT = 0.7
+CURATE_K = 5     # how many of the closest memories the curator checks against a new fact
 FORGET_AT = 0.7
 LOCK_AT = 0.6
 TONE_AT = 0.5
@@ -139,8 +145,9 @@ class TactAgent:
     def __init__(self, store: MemoryStore | None = None, k: int = 8,
                  design: str | None = None) -> None:
         self.store = store or MemoryStore()
-        self.gate = MemoryGate(http_ask(decider_url()),
-                               design=design or os.environ.get("TACT_GATE_DESIGN", "choice"))
+        ask = http_ask(decider_url())
+        self.gate = MemoryGate(ask, design=design or os.environ.get("TACT_GATE_DESIGN", "choice"))
+        self.curator = MemoryCurator(ask)
         self.handler = MemoryGateIntervention(self.gate, self.store, k)
         self.agent = Agent(
             model=bedrock.strands_model(temperature=0.3, max_tokens=400),
@@ -154,20 +161,34 @@ class TactAgent:
         result = self.agent(text)
         after = self.agent.event_loop_metrics.accumulated_usage
         gate = self.handler.last
-        remembered = None
+        remembered, curation = None, None
         p_remember = gate.raw.get("_remember", {}).get("noul", 0.0) if gate else 0.0
         # A request to forget something is not a new fact to store.
         if p_remember >= REMEMBER_AT and not self.handler.last_locked:
-            fact = bedrock.chat(EXTRACT_PROMPT, [("user", text)], max_tokens=60, temperature=0)["text"].strip()
-            remembered = self.store.add(fact)
+            remembered, curation = self._remember(text)
         return {
             "reply": str(result).strip(),
             "gate": gate,
             "candidates": self.handler.last_candidates,
             "p_remember": p_remember,
             "remembered": remembered,
+            "curation": curation,
             "tone": self.handler.last_tone,
             "locked": self.handler.last_locked,
             "input_tokens": after["inputTokens"] - before.get("inputTokens", 0),
             "output_tokens": after["outputTokens"] - before.get("outputTokens", 0),
         }
+
+    def _remember(self, text: str) -> tuple[dict | None, CurateResult]:
+        """Store the new fact, and let the curator retire the memories it makes outdated."""
+        nearby = self.handler.last_candidates[:CURATE_K]
+        curation = self.curator.safe_run([("user", text)], nearby)
+        if not curation.store_new:
+            return None, curation
+        fact = bedrock.chat(EXTRACT_PROMPT, [("user", text)], max_tokens=60, temperature=0)["text"].strip()
+        memory = self.store.add(fact)
+        for u in curation.by_action("retire"):
+            self.store.retire(u.memory_id, memory["id"])
+        for u in curation.by_action("doubt"):
+            self.store.doubt(u.memory_id)
+        return memory, curation

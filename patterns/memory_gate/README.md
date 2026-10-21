@@ -5,6 +5,10 @@ whether the agent may **mention** it, should use it **quietly** (as background i
 loud), or should **skip** it. Strands Decider 2B gives the probabilities; a small expected-cost
 policy in plain Python turns them into the memory block for the system prompt.
 
+Its write-side partner, **MemoryCurator**, decides what a new message does to the memories already
+stored: makes them **outdated**, **repeats** them, or leaves them **unaffected**
+([below](#the-write-side-memorycurator)).
+
 It solves two problems memory-enabled agents have:
 
 1. **Context bloat.** Dumping every memory into the prompt costs tokens on every turn.
@@ -104,7 +108,8 @@ class MemoryGateIntervention(InterventionHandler):
         prompt = f"{SYSTEM_PROMPT}\n\n{render_context(result)}"
         return Transform(apply=lambda e: setattr(e.agent, "system_prompt", prompt))
 
-agent = Agent(model=BedrockModel(...), interventions=[MemoryGateIntervention(gate, store)])
+agent = Agent(model=BedrockModel(model_id="us.amazon.nova-lite-v1:0"),
+              interventions=[MemoryGateIntervention(gate, store)])
 ```
 
 ## Free extra questions
@@ -116,6 +121,56 @@ come back in `result.raw`. Tact uses three, at no extra round trip:
 - `_forget` (noul): is the user asking not to bring something up? A short follow-up call finds
   which memories they mean and locks them.
 - `_tone` (choice: gentle / upbeat / practical): adjusts how the reply should feel.
+
+## The write side: MemoryCurator
+
+Saying the right thing also means not saying *old* things. When the user says "I just moved to
+Bangalore", a memory store that only appends ends up holding both "lives in Pune" and "lives in
+Bangalore", and the agent picks one at random. `MemoryCurator` asks, in one request, what the new
+message means for each of the closest stored memories:
+
+```python
+{"type": "choice",
+ "instructions": "The user just sent the message above. The assistant remembers this fact about "
+                 "the user:\n{memory}\nWhat does the user's message mean for this remembered fact?",
+ "criteria": {
+   "outdated":   "the message shows the fact is no longer true: something changed (a move, a new job, "
+                 "a cancelled or changed plan, a new preference), so the old fact should be replaced",
+   "repeat":     "the message says the same thing as the fact again, so there is nothing new to store",
+   "unaffected": "the fact is still true after this message; the message is about something else "
+                 "or only adds a new detail alongside it"}}
+```
+
+Deleting a true memory and keeping a stale one are both mistakes, and the decider isn't always
+sure which it's looking at, so the policy has three bands instead of one threshold:
+
+| P(outdated) | action |
+|---|---|
+| ≥ 0.6 | **retire**: out of retrieval, but kept in the list (`retired_by`) so it can be shown and undone |
+| 0.4 – 0.6 | **doubt**: kept, and `render_context` tells the LLM it *may be out of date* |
+| < 0.4 | keep |
+
+One more yes/no question per memory rides in the same request: *is this a past event that is over
+and done?* A past event stays true when life moves on ("was laid off in March 2025" after "I got a
+new job"), so a memory with P(past) ≥ 0.5 is never retired, only flagged.
+
+```python
+curator = MemoryCurator(http_ask("http://127.0.0.1:8099"))
+result = curator.safe_run([("user", "I just moved to Bangalore!")], closest_memories)
+for u in result.by_action("retire"):
+    store.retire(u.memory_id, replaced_by=new_memory_id)
+if not result.store_new:      # the message only repeated something already stored
+    ...
+```
+
+If the decider is unreachable, `safe_run` changes nothing. On 27 hand-labelled messages it
+retired 9 of 17 outdated memories, flagged 5 more, and retired **none of the 60 that were still
+true** (without the past-event question: 12 retired, but 2 true memories lost). Details:
+[`eval/RESULTS.md`](../../eval/RESULTS.md). Its blind spot is *finished* plans: "I finally bought
+the Royal Enfield" doesn't retire "saving up to buy a Royal Enfield".
+
+Lesson from tuning it: when one case went wrong, adding a clause to an option description made
+*every* probability drift. A separate narrow yes/no question fixed the case without moving the rest.
 
 ## Tuning
 
