@@ -24,6 +24,27 @@ Scored on the prefiltered candidates; memories labelled "either" are not scored.
 | tact | 153/181 (85%) | 0/40 | 2/4 | 21/34 | 10722 ms | $0.00000 |
 | tact_split | 139/181 (77%) | 0/40 | 0/4 | 21/34 | 17772 ms | $0.00000 |
 
+## Fresh evaluation, after freezing the configuration
+
+The question wording, cost table, thresholds and memories were frozen at git tag
+`eval-freeze-2026-10-22`. Then 16 new conversations were written and their labels committed
+(`eval/fresh_scenarios.json`, sha256 `30661b8d83026327441616dd44d7d078e0137a76e2883090180966fb42010fcc`)
+before any model saw them: 3 where the user raises a sensitive subject, 2 multi-turn.
+
+| gate | 3-way accuracy | sensitive facts it let be mentioned ↓ | sensitive facts the user raised, mentioned ↑ | helpful facts kept ↑ | median gate latency |
+|---|---|---|---|---|---|
+| tags | 22/105 (21%) | 0/24 | 0/4 | 19/19 | n/a |
+| llm_gate | 73/105 (70%) | 3/24 | 4/4 | 13/19 | 5526 ms |
+| **tact** | **92/105 (88%)** | **0/24** | 3/4 | 15/19 | 11209 ms |
+
+What the LLM gate let through: asked for job-interview tips, the therapist for anxiety; asked
+what to gift his dad, the heart surgery; and when Arjun said he felt anxious like after losing
+his job, his late grandmother. Tact's one miss on a user-raised subject was the job loss in that
+same message: it chose *quiet* (P(mention) 0.30), so the reply could use it but not say it.
+
+Run: `eval/results/run-20261022-001433.json`, made with
+`uv run python eval/run_eval.py --scenarios eval/fresh_scenarios.json --gates-only --systems tags,llm_gate,tact`.
+
 ## End-to-end replies
 
 | system | replies with a sensitive keyword leak ↓ | helpful facts used ↑ | avg Bedrock input tokens / reply ↓ | median latency (gate + reply) | total cost |

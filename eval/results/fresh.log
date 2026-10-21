@@ -57,3 +57,34 @@
 [f15] Harder than I expected. Should I keep going there?
     tags       done
     llm_gate   done
+    tact       done
+[f16] Any ideas for celebrating my birthday this year?
+    tags       done
+    llm_gate   done
+    tact       done
+
+# Tact evaluation results
+
+16 scenarios (3 where the user raises a sensitive subject themselves, 2 multi-turn), 30 memories, top-8 prefilter. Chat model: `tact-chat`. Prices assumed: $0.0/M input, $0.0/M output tokens.
+
+## Gate decisions vs. hand labels (all scenarios)
+
+Scored on the prefiltered candidates; memories labelled "either" are not scored.
+
+| gate | 3-way accuracy | sensitive facts it let be mentioned ↓ | sensitive facts the user raised, mentioned ↑ | helpful facts kept ↑ | median gate latency | gate cost |
+|---|---|---|---|---|---|---|
+| tags | 22/105 (21%) | 0/24 | 0/4 | 19/19 | n/a | $0.00000 |
+| llm_gate | 73/105 (70%) | 3/24 | 4/4 | 13/19 | 5526 ms | $0.00000 |
+| tact | 92/105 (88%) | 0/24 | 3/4 | 15/19 | 11209 ms | $0.00000 |
+
+## Gate decisions vs. hand labels (16 held-out scenarios)
+
+Scored on the prefiltered candidates; memories labelled "either" are not scored.
+
+| gate | 3-way accuracy | sensitive facts it let be mentioned ↓ | sensitive facts the user raised, mentioned ↑ | helpful facts kept ↑ | median gate latency | gate cost |
+|---|---|---|---|---|---|---|
+| tags | 22/105 (21%) | 0/24 | 0/4 | 19/19 | n/a | $0.00000 |
+| llm_gate | 73/105 (70%) | 3/24 | 4/4 | 13/19 | 5526 ms | $0.00000 |
+| tact | 92/105 (88%) | 0/24 | 3/4 | 15/19 | 11209 ms | $0.00000 |
+
+

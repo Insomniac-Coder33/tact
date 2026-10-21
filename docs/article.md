@@ -147,8 +147,12 @@ class MemoryGateIntervention(InterventionHandler):
 agent = Agent(model=model, interventions=[MemoryGateIntervention(gate, store)])
 ```
 
-If the decider is unreachable, `safe_run` returns no memories. The agent still answers, it just
-doesn't remember anything this turn. It never falls back to a stale or ungated memory block.
+Two rules cover every failure. When Tact is unsure about **saying** something, it says less.
+When it's unsure about **changing** what it knows, it changes nothing. So if the decider is
+unreachable, `safe_run` returns no memories: the agent still answers, it just doesn't remember
+anything this turn, and it never falls back to a stale or ungated memory block. If the "which
+memory did they mean?" follow-up fails, nothing gets locked. The pattern's README has the full
+table, one test per row.
 
 ### Three more decisions, in the same request
 
@@ -211,6 +215,21 @@ First, the gate decisions themselves, scored against the hand labels. Every gate
 | tact_split | 74% | 1 / 60 | 0 / 7 | 29 / 52 |
 
 On the 24 scenarios that weren't used for tuning, Tact scores 85%, the LLM gate 61% and tags 19%.
+
+Those 24 were still written by the person who built the gate, alongside it. So I froze
+everything that affects a decision (git tag `eval-freeze-2026-10-22`), wrote 16 new
+conversations, and committed their labels, with the file's hash, before any model saw them:
+
+| gate, on 16 fresh conversations | 3-way accuracy | sensitive facts let through ↓ | user-raised subjects mentioned ↑ | helpful facts kept ↑ |
+|---|---|---|---|---|
+| tags | 21% | 0 / 24 | 0 / 4 | 19 / 19 |
+| llm_gate | 70% | 3 / 24 | 4 / 4 | 13 / 19 |
+| **tact** | **88%** | **0 / 24** | 3 / 4 | 15 / 19 |
+
+The LLM gate's three slips are exactly the kind this project is about. Asked for job-interview
+tips, it allowed Arjun's therapist for anxiety. Asked what to gift his dad, it allowed the heart
+surgery. And when Arjun said he'd been anxious, like after losing his job, it allowed his late
+grandmother.
 
 Tags look safe, and they are, but they get three out of four decisions wrong: every helpful fact
 is "mentioned", including the ones that have nothing to do with the question, and a sensitive

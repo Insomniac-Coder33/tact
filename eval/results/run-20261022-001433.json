@@ -1,0 +1,3394 @@
+[
+  {
+    "id": "f01",
+    "message": "Plan a cheap weekend getaway from Pune for me.",
+    "candidates": [
+      "m11",
+      "m03",
+      "m22",
+      "m06",
+      "m15",
+      "m24",
+      "m17",
+      "m10"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m11": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m03": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m24": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 5139.163099986035,
+        "gate_tokens": 325,
+        "gate": {
+          "m11": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m03": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m24": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11248.299999977462,
+        "decider_input_tokens": 1421,
+        "gate": {
+          "m11": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.788,
+            "p": {
+              "mention": 0.858,
+              "quiet": 0.043,
+              "skip": 0.098
+            }
+          },
+          "m03": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.466,
+            "p": {
+              "mention": 0.282,
+              "quiet": 0.074,
+              "skip": 0.644
+            }
+          },
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.88,
+            "p": {
+              "mention": 0.037,
+              "quiet": 0.043,
+              "skip": 0.92
+            }
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.575,
+            "p": {
+              "mention": 0.21,
+              "quiet": 0.074,
+              "skip": 0.716
+            }
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.847,
+            "p": {
+              "mention": 0.048,
+              "quiet": 0.054,
+              "skip": 0.898
+            }
+          },
+          "m24": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.535,
+            "p": {
+              "mention": 0.17,
+              "quiet": 0.14,
+              "skip": 0.69
+            }
+          },
+          "m17": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.722,
+            "p": {
+              "mention": 0.132,
+              "quiet": 0.054,
+              "skip": 0.814
+            }
+          },
+          "m10": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.873,
+            "p": {
+              "mention": 0.035,
+              "quiet": 0.05,
+              "skip": 0.915
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f02",
+    "message": "What should I gift my dad for his birthday?",
+    "candidates": [
+      "m29",
+      "m07",
+      "m15",
+      "m17",
+      "m09",
+      "m21",
+      "m27",
+      "m25"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m29": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m07": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m21": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m27": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m25": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 5636.198699998204,
+        "gate_tokens": 319,
+        "gate": {
+          "m29": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m07": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m21": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m27": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m25": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11343.70750002563,
+        "decider_input_tokens": 1406,
+        "gate": {
+          "m29": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.482,
+            "p": {
+              "mention": 0.276,
+              "quiet": 0.069,
+              "skip": 0.654
+            }
+          },
+          "m07": {
+            "action": "quiet",
+            "label": "mention",
+            "confidence": 0.207,
+            "p": {
+              "mention": 0.471,
+              "quiet": 0.166,
+              "skip": 0.363
+            }
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.682,
+            "p": {
+              "mention": 0.151,
+              "quiet": 0.06,
+              "skip": 0.788
+            }
+          },
+          "m17": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.773,
+            "p": {
+              "mention": 0.096,
+              "quiet": 0.056,
+              "skip": 0.849
+            }
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.536,
+            "p": {
+              "mention": 0.261,
+              "quiet": 0.048,
+              "skip": 0.691
+            }
+          },
+          "m21": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.852,
+            "p": {
+              "mention": 0.042,
+              "quiet": 0.057,
+              "skip": 0.901
+            }
+          },
+          "m27": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.801,
+            "p": {
+              "mention": 0.047,
+              "quiet": 0.085,
+              "skip": 0.868
+            }
+          },
+          "m25": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.52,
+            "p": {
+              "mention": 0.259,
+              "quiet": 0.061,
+              "skip": 0.68
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f03",
+    "message": "I have a job interview at 9 am tomorrow. Any tips?",
+    "candidates": [
+      "m13",
+      "m26",
+      "m08",
+      "m06",
+      "m20",
+      "m03",
+      "m09",
+      "m16"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m13": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m26": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m08": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m20": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m03": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m16": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 4557.965699990746,
+        "gate_tokens": 316,
+        "gate": {
+          "m13": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m26": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m08": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m20": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m03": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m16": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11103.29030000139,
+        "decider_input_tokens": 1421,
+        "gate": {
+          "m13": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.685,
+            "p": {
+              "mention": 0.114,
+              "quiet": 0.096,
+              "skip": 0.79
+            }
+          },
+          "m26": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.874,
+            "p": {
+              "mention": 0.031,
+              "quiet": 0.053,
+              "skip": 0.916
+            }
+          },
+          "m08": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.794,
+            "p": {
+              "mention": 0.032,
+              "quiet": 0.105,
+              "skip": 0.863
+            }
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.894,
+            "p": {
+              "mention": 0.024,
+              "quiet": 0.047,
+              "skip": 0.929
+            }
+          },
+          "m20": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.818,
+            "p": {
+              "mention": 0.052,
+              "quiet": 0.07,
+              "skip": 0.878
+            }
+          },
+          "m03": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.742,
+            "p": {
+              "mention": 0.095,
+              "quiet": 0.077,
+              "skip": 0.828
+            }
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.886,
+            "p": {
+              "mention": 0.027,
+              "quiet": 0.049,
+              "skip": 0.924
+            }
+          },
+          "m16": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.796,
+            "p": {
+              "mention": 0.045,
+              "quiet": 0.09,
+              "skip": 0.864
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f04",
+    "message": "Recommend a book for my long train journey.",
+    "candidates": [
+      "m11",
+      "m22",
+      "m25",
+      "m23",
+      "m06",
+      "m15",
+      "m10",
+      "m04"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m11": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m25": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m23": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m04": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 4305.258699983824,
+        "gate_tokens": 311,
+        "gate": {
+          "m11": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m25": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m23": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m04": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11173.224699974526,
+        "decider_input_tokens": 1417,
+        "gate": {
+          "m11": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.229,
+            "p": {
+              "mention": 0.486,
+              "quiet": 0.067,
+              "skip": 0.448
+            }
+          },
+          "m22": {
+            "action": "mention",
+            "label": "skip",
+            "confidence": 0.458,
+            "p": {
+              "mention": 0.309,
+              "quiet": 0.052,
+              "skip": 0.639
+            }
+          },
+          "m25": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.719,
+            "p": {
+              "mention": 0.812,
+              "quiet": 0.039,
+              "skip": 0.149
+            }
+          },
+          "m23": {
+            "action": "mention",
+            "label": "skip",
+            "confidence": 0.214,
+            "p": {
+              "mention": 0.432,
+              "quiet": 0.091,
+              "skip": 0.476
+            }
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.792,
+            "p": {
+              "mention": 0.088,
+              "quiet": 0.05,
+              "skip": 0.862
+            }
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.859,
+            "p": {
+              "mention": 0.043,
+              "quiet": 0.051,
+              "skip": 0.906
+            }
+          },
+          "m10": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.836,
+            "p": {
+              "mention": 0.053,
+              "quiet": 0.057,
+              "skip": 0.891
+            }
+          },
+          "m04": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.804,
+            "p": {
+              "mention": 0.035,
+              "quiet": 0.096,
+              "skip": 0.869
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f05",
+    "message": "My best friend is visiting from abroad next month. What should we do in Pune?",
+    "candidates": [
+      "m18",
+      "m03",
+      "m22",
+      "m06",
+      "m11",
+      "m17",
+      "m04",
+      "m09"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m18": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m03": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m11": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m04": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 7108.352300012484,
+        "gate_tokens": 361,
+        "gate": {
+          "m18": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m03": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m11": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m04": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11341.797399974894,
+        "decider_input_tokens": 1433,
+        "gate": {
+          "m18": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.867,
+            "p": {
+              "mention": 0.03,
+              "quiet": 0.059,
+              "skip": 0.911
+            }
+          },
+          "m03": {
+            "action": "mention",
+            "label": "skip",
+            "confidence": 0.447,
+            "p": {
+              "mention": 0.311,
+              "quiet": 0.058,
+              "skip": 0.632
+            }
+          },
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.836,
+            "p": {
+              "mention": 0.06,
+              "quiet": 0.049,
+              "skip": 0.891
+            }
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.287,
+            "p": {
+              "mention": 0.524,
+              "quiet": 0.049,
+              "skip": 0.426
+            }
+          },
+          "m11": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.513,
+            "p": {
+              "mention": 0.257,
+              "quiet": 0.068,
+              "skip": 0.675
+            }
+          },
+          "m17": {
+            "action": "mention",
+            "label": "skip",
+            "confidence": 0.278,
+            "p": {
+              "mention": 0.428,
+              "quiet": 0.053,
+              "skip": 0.519
+            }
+          },
+          "m04": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.825,
+            "p": {
+              "mention": 0.021,
+              "quiet": 0.096,
+              "skip": 0.883
+            }
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.868,
+            "p": {
+              "mention": 0.045,
+              "quiet": 0.043,
+              "skip": 0.912
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f06",
+    "message": "Can you suggest a dessert I could make for Diwali at home?",
+    "candidates": [
+      "m21",
+      "m17",
+      "m30",
+      "m09",
+      "m29",
+      "m14",
+      "m02",
+      "m11"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m21": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m29": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m14": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m02": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m11": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 7126.556199975312,
+        "gate_tokens": 337,
+        "gate": {
+          "m21": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m29": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m14": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m02": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m11": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11836.921899986919,
+        "decider_input_tokens": 1408,
+        "gate": {
+          "m21": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.554,
+            "p": {
+              "mention": 0.702,
+              "quiet": 0.12,
+              "skip": 0.178
+            }
+          },
+          "m17": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.592,
+            "p": {
+              "mention": 0.214,
+              "quiet": 0.058,
+              "skip": 0.728
+            }
+          },
+          "m30": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.899,
+            "p": {
+              "mention": 0.027,
+              "quiet": 0.04,
+              "skip": 0.933
+            }
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.903,
+            "p": {
+              "mention": 0.03,
+              "quiet": 0.034,
+              "skip": 0.935
+            }
+          },
+          "m29": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.866,
+            "p": {
+              "mention": 0.043,
+              "quiet": 0.046,
+              "skip": 0.911
+            }
+          },
+          "m14": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.599,
+            "p": {
+              "mention": 0.158,
+              "quiet": 0.109,
+              "skip": 0.733
+            }
+          },
+          "m02": {
+            "action": "mention",
+            "label": "skip",
+            "confidence": 0.371,
+            "p": {
+              "mention": 0.339,
+              "quiet": 0.081,
+              "skip": 0.581
+            }
+          },
+          "m11": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.615,
+            "p": {
+              "mention": 0.193,
+              "quiet": 0.064,
+              "skip": 0.743
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f07",
+    "message": "I've been feeling anxious again lately, like after I lost my job. What helps?",
+    "candidates": [
+      "m16",
+      "m08",
+      "m19",
+      "m20",
+      "m07",
+      "m23",
+      "m24",
+      "m27"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m16": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m08": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m19": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m20": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m07": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m23": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m24": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m27": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 4444.911000027787,
+        "gate_tokens": 320,
+        "gate": {
+          "m16": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m08": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m19": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m20": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m07": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m23": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m24": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m27": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11166.651700041257,
+        "decider_input_tokens": 1425,
+        "gate": {
+          "m16": {
+            "action": "mention",
+            "label": "skip",
+            "confidence": 0.228,
+            "p": {
+              "mention": 0.417,
+              "quiet": 0.097,
+              "skip": 0.485
+            }
+          },
+          "m08": {
+            "action": "quiet",
+            "label": "skip",
+            "confidence": 0.282,
+            "p": {
+              "mention": 0.304,
+              "quiet": 0.175,
+              "skip": 0.521
+            }
+          },
+          "m19": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.858,
+            "p": {
+              "mention": 0.021,
+              "quiet": 0.074,
+              "skip": 0.905
+            }
+          },
+          "m20": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.829,
+            "p": {
+              "mention": 0.026,
+              "quiet": 0.088,
+              "skip": 0.886
+            }
+          },
+          "m07": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.832,
+            "p": {
+              "mention": 0.02,
+              "quiet": 0.092,
+              "skip": 0.888
+            }
+          },
+          "m23": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.881,
+            "p": {
+              "mention": 0.021,
+              "quiet": 0.059,
+              "skip": 0.92
+            }
+          },
+          "m24": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.729,
+            "p": {
+              "mention": 0.052,
+              "quiet": 0.129,
+              "skip": 0.819
+            }
+          },
+          "m27": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.781,
+            "p": {
+              "mention": 0.025,
+              "quiet": 0.121,
+              "skip": 0.854
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f08",
+    "message": "Today would have been Biscuit's birthday. I really miss him.",
+    "candidates": [
+      "m05",
+      "m30",
+      "m29",
+      "m27",
+      "m08",
+      "m07",
+      "m18",
+      "m21"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m05": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m29": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m27": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m08": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m07": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m18": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m21": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 7039.263000013307,
+        "gate_tokens": 355,
+        "gate": {
+          "m05": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m29": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m27": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m08": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m07": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m18": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m21": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11535.930899961386,
+        "decider_input_tokens": 1428,
+        "gate": {
+          "m05": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.395,
+            "p": {
+              "mention": 0.597,
+              "quiet": 0.174,
+              "skip": 0.229
+            }
+          },
+          "m30": {
+            "action": "quiet",
+            "label": "skip",
+            "confidence": 0.378,
+            "p": {
+              "mention": 0.296,
+              "quiet": 0.118,
+              "skip": 0.585
+            }
+          },
+          "m29": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.69,
+            "p": {
+              "mention": 0.106,
+              "quiet": 0.1,
+              "skip": 0.794
+            }
+          },
+          "m27": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.757,
+            "p": {
+              "mention": 0.042,
+              "quiet": 0.12,
+              "skip": 0.838
+            }
+          },
+          "m08": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.848,
+            "p": {
+              "mention": 0.02,
+              "quiet": 0.081,
+              "skip": 0.898
+            }
+          },
+          "m07": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.858,
+            "p": {
+              "mention": 0.021,
+              "quiet": 0.074,
+              "skip": 0.905
+            }
+          },
+          "m18": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.874,
+            "p": {
+              "mention": 0.02,
+              "quiet": 0.064,
+              "skip": 0.916
+            }
+          },
+          "m21": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.848,
+            "p": {
+              "mention": 0.026,
+              "quiet": 0.075,
+              "skip": 0.899
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f09",
+    "message": "Help me write a short message to wish Kavya for her wedding.",
+    "candidates": [
+      "m12",
+      "m27",
+      "m21",
+      "m04",
+      "m06",
+      "m15",
+      "m17",
+      "m29"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m12": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m27": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m21": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m04": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m29": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 7795.185599999968,
+        "gate_tokens": 359,
+        "gate": {
+          "m12": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m27": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m21": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m04": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m29": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11208.591200003866,
+        "decider_input_tokens": 1423,
+        "gate": {
+          "m12": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.408,
+            "p": {
+              "mention": 0.605,
+              "quiet": 0.066,
+              "skip": 0.328
+            }
+          },
+          "m27": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.858,
+            "p": {
+              "mention": 0.025,
+              "quiet": 0.07,
+              "skip": 0.905
+            }
+          },
+          "m21": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.906,
+            "p": {
+              "mention": 0.021,
+              "quiet": 0.042,
+              "skip": 0.937
+            }
+          },
+          "m04": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.85,
+            "p": {
+              "mention": 0.017,
+              "quiet": 0.083,
+              "skip": 0.9
+            }
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.913,
+            "p": {
+              "mention": 0.022,
+              "quiet": 0.036,
+              "skip": 0.942
+            }
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.909,
+            "p": {
+              "mention": 0.019,
+              "quiet": 0.041,
+              "skip": 0.939
+            }
+          },
+          "m17": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.89,
+            "p": {
+              "mention": 0.024,
+              "quiet": 0.05,
+              "skip": 0.926
+            }
+          },
+          "m29": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.899,
+            "p": {
+              "mention": 0.025,
+              "quiet": 0.042,
+              "skip": 0.933
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f10",
+    "message": "Which neighbourhoods should I stay in?",
+    "candidates": [
+      "m18",
+      "m03",
+      "m17",
+      "m26",
+      "m10",
+      "m22",
+      "m24",
+      "m30"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m18": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m03": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m26": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m24": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 7097.529400023632,
+        "gate_tokens": 367,
+        "gate": {
+          "m18": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m03": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m26": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m24": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11210.40029998403,
+        "decider_input_tokens": 1441,
+        "gate": {
+          "m18": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.904,
+            "p": {
+              "mention": 0.023,
+              "quiet": 0.041,
+              "skip": 0.936
+            }
+          },
+          "m03": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.882,
+            "p": {
+              "mention": 0.036,
+              "quiet": 0.043,
+              "skip": 0.921
+            }
+          },
+          "m17": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.888,
+            "p": {
+              "mention": 0.036,
+              "quiet": 0.039,
+              "skip": 0.925
+            }
+          },
+          "m26": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.9,
+            "p": {
+              "mention": 0.025,
+              "quiet": 0.041,
+              "skip": 0.933
+            }
+          },
+          "m10": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.901,
+            "p": {
+              "mention": 0.027,
+              "quiet": 0.039,
+              "skip": 0.934
+            }
+          },
+          "m22": {
+            "action": "mention",
+            "label": "skip",
+            "confidence": 0.468,
+            "p": {
+              "mention": 0.307,
+              "quiet": 0.047,
+              "skip": 0.645
+            }
+          },
+          "m24": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.797,
+            "p": {
+              "mention": 0.058,
+              "quiet": 0.077,
+              "skip": 0.864
+            }
+          },
+          "m30": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.919,
+            "p": {
+              "mention": 0.021,
+              "quiet": 0.032,
+              "skip": 0.946
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f11",
+    "message": "I've got tickets to the top of a skyscraper observation deck this weekend. Any advice?",
+    "candidates": [
+      "m22",
+      "m19",
+      "m11",
+      "m26",
+      "m10",
+      "m15",
+      "m04",
+      "m06"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m22": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m19": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m11": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m26": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m04": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 4509.018199983984,
+        "gate_tokens": 319,
+        "gate": {
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m19": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m11": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m26": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m04": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11586.456299992278,
+        "decider_input_tokens": 1424,
+        "gate": {
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.873,
+            "p": {
+              "mention": 0.034,
+              "quiet": 0.051,
+              "skip": 0.915
+            }
+          },
+          "m19": {
+            "action": "quiet",
+            "label": "skip",
+            "confidence": 0.355,
+            "p": {
+              "mention": 0.188,
+              "quiet": 0.242,
+              "skip": 0.57
+            }
+          },
+          "m11": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.583,
+            "p": {
+              "mention": 0.188,
+              "quiet": 0.09,
+              "skip": 0.722
+            }
+          },
+          "m26": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.867,
+            "p": {
+              "mention": 0.026,
+              "quiet": 0.063,
+              "skip": 0.911
+            }
+          },
+          "m10": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.808,
+            "p": {
+              "mention": 0.055,
+              "quiet": 0.073,
+              "skip": 0.872
+            }
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.87,
+            "p": {
+              "mention": 0.029,
+              "quiet": 0.058,
+              "skip": 0.913
+            }
+          },
+          "m04": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.799,
+            "p": {
+              "mention": 0.02,
+              "quiet": 0.115,
+              "skip": 0.866
+            }
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.875,
+            "p": {
+              "mention": 0.031,
+              "quiet": 0.052,
+              "skip": 0.916
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f12",
+    "message": "I want to start running in the mornings. Can you make me a plan?",
+    "candidates": [
+      "m06",
+      "m13",
+      "m30",
+      "m15",
+      "m09",
+      "m22",
+      "m26",
+      "m03"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m13": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m26": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m03": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 5416.548899956979,
+        "gate_tokens": 329,
+        "gate": {
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m13": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m26": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m03": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 10974.610399978701,
+        "decider_input_tokens": 1423,
+        "gate": {
+          "m06": {
+            "action": "mention",
+            "label": "skip",
+            "confidence": 0.345,
+            "p": {
+              "mention": 0.386,
+              "quiet": 0.051,
+              "skip": 0.563
+            }
+          },
+          "m13": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.669,
+            "p": {
+              "mention": 0.136,
+              "quiet": 0.085,
+              "skip": 0.779
+            }
+          },
+          "m30": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.783,
+            "p": {
+              "mention": 0.105,
+              "quiet": 0.04,
+              "skip": 0.855
+            }
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.869,
+            "p": {
+              "mention": 0.038,
+              "quiet": 0.049,
+              "skip": 0.913
+            }
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.886,
+            "p": {
+              "mention": 0.033,
+              "quiet": 0.043,
+              "skip": 0.924
+            }
+          },
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.887,
+            "p": {
+              "mention": 0.034,
+              "quiet": 0.042,
+              "skip": 0.925
+            }
+          },
+          "m26": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.884,
+            "p": {
+              "mention": 0.029,
+              "quiet": 0.049,
+              "skip": 0.922
+            }
+          },
+          "m03": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.73,
+            "p": {
+              "mention": 0.122,
+              "quiet": 0.058,
+              "skip": 0.82
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f13",
+    "message": "What should I cook for my parents this weekend?",
+    "candidates": [
+      "m21",
+      "m17",
+      "m07",
+      "m12",
+      "m02",
+      "m09",
+      "m27",
+      "m06"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m21": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m07": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m12": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m02": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m27": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 6418.483900022693,
+        "gate_tokens": 333,
+        "gate": {
+          "m21": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m07": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m12": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m02": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m27": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11013.899600016885,
+        "decider_input_tokens": 1413,
+        "gate": {
+          "m21": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.494,
+            "p": {
+              "mention": 0.662,
+              "quiet": 0.099,
+              "skip": 0.239
+            }
+          },
+          "m17": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.548,
+            "p": {
+              "mention": 0.699,
+              "quiet": 0.053,
+              "skip": 0.248
+            }
+          },
+          "m07": {
+            "action": "quiet",
+            "label": "skip",
+            "confidence": 0.179,
+            "p": {
+              "mention": 0.345,
+              "quiet": 0.202,
+              "skip": 0.453
+            }
+          },
+          "m12": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.821,
+            "p": {
+              "mention": 0.044,
+              "quiet": 0.075,
+              "skip": 0.881
+            }
+          },
+          "m02": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.511,
+            "p": {
+              "mention": 0.674,
+              "quiet": 0.071,
+              "skip": 0.255
+            }
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.867,
+            "p": {
+              "mention": 0.041,
+              "quiet": 0.047,
+              "skip": 0.911
+            }
+          },
+          "m27": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.595,
+            "p": {
+              "mention": 0.125,
+              "quiet": 0.146,
+              "skip": 0.73
+            }
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.876,
+            "p": {
+              "mention": 0.035,
+              "quiet": 0.048,
+              "skip": 0.918
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f14",
+    "message": "How can I save money faster for a big purchase?",
+    "candidates": [
+      "m15",
+      "m11",
+      "m24",
+      "m22",
+      "m10",
+      "m21",
+      "m06",
+      "m20"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m15": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m11": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m24": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m21": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m20": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 2527.5124000036158,
+        "gate_tokens": 290,
+        "gate": {
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m11": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m24": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m21": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m20": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11203.507300000638,
+        "decider_input_tokens": 1419,
+        "gate": {
+          "m15": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.5,
+            "p": {
+              "mention": 0.667,
+              "quiet": 0.048,
+              "skip": 0.286
+            }
+          },
+          "m11": {
+            "action": "mention",
+            "label": "skip",
+            "confidence": 0.374,
+            "p": {
+              "mention": 0.357,
+              "quiet": 0.06,
+              "skip": 0.583
+            }
+          },
+          "m24": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.711,
+            "p": {
+              "mention": 0.095,
+              "quiet": 0.098,
+              "skip": 0.807
+            }
+          },
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.883,
+            "p": {
+              "mention": 0.037,
+              "quiet": 0.041,
+              "skip": 0.922
+            }
+          },
+          "m10": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.894,
+            "p": {
+              "mention": 0.026,
+              "quiet": 0.044,
+              "skip": 0.929
+            }
+          },
+          "m21": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.869,
+            "p": {
+              "mention": 0.032,
+              "quiet": 0.055,
+              "skip": 0.913
+            }
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.856,
+            "p": {
+              "mention": 0.053,
+              "quiet": 0.043,
+              "skip": 0.904
+            }
+          },
+          "m20": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.873,
+            "p": {
+              "mention": 0.031,
+              "quiet": 0.054,
+              "skip": 0.915
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f15",
+    "message": "Harder than I expected. Should I keep going there?",
+    "candidates": [
+      "m22",
+      "m08",
+      "m30",
+      "m06",
+      "m19",
+      "m11",
+      "m10",
+      "m09"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m22": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m08": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m19": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m11": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 2746.3159000035375,
+        "gate_tokens": 324,
+        "gate": {
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m08": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m19": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m11": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m10": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 11780.062199977692,
+        "decider_input_tokens": 1455,
+        "gate": {
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.881,
+            "p": {
+              "mention": 0.023,
+              "quiet": 0.056,
+              "skip": 0.921
+            }
+          },
+          "m08": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.769,
+            "p": {
+              "mention": 0.038,
+              "quiet": 0.116,
+              "skip": 0.846
+            }
+          },
+          "m30": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.436,
+            "p": {
+              "mention": 0.624,
+              "quiet": 0.111,
+              "skip": 0.265
+            }
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.83,
+            "p": {
+              "mention": 0.039,
+              "quiet": 0.074,
+              "skip": 0.887
+            }
+          },
+          "m19": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.749,
+            "p": {
+              "mention": 0.052,
+              "quiet": 0.115,
+              "skip": 0.833
+            }
+          },
+          "m11": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.698,
+            "p": {
+              "mention": 0.107,
+              "quiet": 0.094,
+              "skip": 0.799
+            }
+          },
+          "m10": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.874,
+            "p": {
+              "mention": 0.018,
+              "quiet": 0.066,
+              "skip": 0.916
+            }
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.873,
+            "p": {
+              "mention": 0.023,
+              "quiet": 0.061,
+              "skip": 0.915
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "f16",
+    "message": "Any ideas for celebrating my birthday this year?",
+    "candidates": [
+      "m29",
+      "m09",
+      "m15",
+      "m06",
+      "m22",
+      "m30",
+      "m05",
+      "m17"
+    ],
+    "systems": {
+      "tags": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 0.0,
+        "gate": {
+          "m29": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m05": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "llm_gate": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 6840.821199992206,
+        "gate_tokens": 334,
+        "gate": {
+          "m29": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m09": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m15": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m06": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m22": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m30": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m05": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 1.0,
+            "p": {}
+          },
+          "m17": {
+            "action": "quiet",
+            "label": "quiet",
+            "confidence": 1.0,
+            "p": {}
+          }
+        }
+      },
+      "tact": {
+        "gate_cost_usd": 0.0,
+        "gate_latency_ms": 10653.09849998448,
+        "decider_input_tokens": 1406,
+        "gate": {
+          "m29": {
+            "action": "mention",
+            "label": "mention",
+            "confidence": 0.656,
+            "p": {
+              "mention": 0.771,
+              "quiet": 0.05,
+              "skip": 0.179
+            }
+          },
+          "m09": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.513,
+            "p": {
+              "mention": 0.273,
+              "quiet": 0.052,
+              "skip": 0.676
+            }
+          },
+          "m15": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.651,
+            "p": {
+              "mention": 0.167,
+              "quiet": 0.065,
+              "skip": 0.767
+            }
+          },
+          "m06": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.545,
+            "p": {
+              "mention": 0.243,
+              "quiet": 0.061,
+              "skip": 0.697
+            }
+          },
+          "m22": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.798,
+            "p": {
+              "mention": 0.085,
+              "quiet": 0.05,
+              "skip": 0.865
+            }
+          },
+          "m30": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.861,
+            "p": {
+              "mention": 0.047,
+              "quiet": 0.046,
+              "skip": 0.907
+            }
+          },
+          "m05": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.636,
+            "p": {
+              "mention": 0.085,
+              "quiet": 0.158,
+              "skip": 0.757
+            }
+          },
+          "m17": {
+            "action": "skip",
+            "label": "skip",
+            "confidence": 0.594,
+            "p": {
+              "mention": 0.206,
+              "quiet": 0.065,
+              "skip": 0.73
+            }
+          }
+        }
+      }
+    }
+  }
+]

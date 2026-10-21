@@ -59,6 +59,8 @@ the painful subject themselves, or it only becomes sensitive two turns into the 
 | | static tags | LLM as the gate | **Tact (Decider 2B)** |
 |---|---|---|---|
 | gate decisions right | 23% | 60% | **83%** (85% on the 24 untuned scenarios) |
+| … on 16 fresh conversations, labels committed before the run | 21% | 70% | **88%** |
+| … sensitive facts let through there | 0 / 24 | 3 / 24 | **0 / 24** |
 | sensitive facts let through | 0 / 60 | 5 / 60 | **0 / 60** |
 | user-raised subjects acknowledged | 0 / 7 | 2 / 7 | **4 / 7** |
 
