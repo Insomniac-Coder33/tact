@@ -213,4 +213,5 @@ a test in [`tests/test_memory_gate.py`](../../tests/test_memory_gate.py).
 - Change `COST` to make the gate more or less cautious.
 - Measure on your own traffic: [`eval/run_eval.py`](../../eval/run_eval.py) in this repo compares
   both designs against no gate, retrieval only, static sensitivity tags and an LLM gate.
+- A rendered, cell-by-cell walkthrough with recorded answers: [`walkthrough.ipynb`](walkthrough.ipynb).
 - Offline tests with a stub decider: [`tests/test_memory_gate.py`](../../tests/test_memory_gate.py).
