@@ -173,12 +173,14 @@ def main() -> int:
     ap.add_argument("--systems", default="all,rag,tags,llm_gate,tact,tact_split")
     ap.add_argument("--report", default="RESULTS.md", help="file name under eval/")
     ap.add_argument("--rescore", metavar="RUN_JSON", help="rebuild the report from a saved run")
+    ap.add_argument("--scenarios", default=str(ROOT / "eval" / "scenarios.json"),
+                    help="scenario file, e.g. eval/fresh_scenarios.json")
     args = ap.parse_args()
     systems = args.systems.split(",")
     if args.rescore:
         return rescore(Path(args.rescore), args)
 
-    scenarios = json.loads((ROOT / "eval" / "scenarios.json").read_text(encoding="utf-8"))
+    scenarios = json.loads(Path(args.scenarios).read_text(encoding="utf-8"))
     store = MemoryStore()
     texts = {m["id"]: m["text"] for m in store.all()}
     ask = http_ask(decider_url())
@@ -239,7 +241,7 @@ def main() -> int:
 def rescore(path: Path, args) -> int:
     """Recompute the reply checks on saved replies (no model calls) and rewrite the report."""
     rows = json.loads(path.read_text(encoding="utf-8"))
-    scenarios = json.loads((ROOT / "eval" / "scenarios.json").read_text(encoding="utf-8"))
+    scenarios = json.loads(Path(args.scenarios).read_text(encoding="utf-8"))
     by_id = {s["id"]: s for s in scenarios}
     systems = list(rows[0]["systems"])
     for row in rows:
