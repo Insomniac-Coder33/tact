@@ -155,12 +155,36 @@ doesn't remember anything this turn. It never falls back to a stale or ungated m
 Once the conversation is encoded, extra questions are nearly free, so Tact asks three more in the
 same call:
 
-- **Remember?** (`noul`) Does the message reveal a lasting fact? Only when the decider is at least
-  70% sure does Tact spend an LLM call writing it down.
+- **Remember?** (`noul`) Is the user sharing news about themselves, rather than asking for
+  something? Only when the decider is at least 70% sure does Tact spend an LLM call writing it
+  down.
 - **Forget?** (`noul`) *"Please don't bring up Meera again."* A short follow-up call asks, per
   memory, "is this the one they mean?", and locks the match. A locked memory can still keep
   answers considerate, but the policy will never let it be said again.
 - **Tone?** (`choice`: gentle / upbeat / practical) Adjusts how the reply should feel.
+
+### The other half of memory: what to forget on its own
+
+Tact knows "Arjun lives in Pune". Then Arjun says *"Big news: I just moved to Bangalore for a new
+job!"* An agent that only appends now holds both facts, and next Saturday it may well suggest a
+walk in Pune. Saying the right thing also means not saying *old* things.
+
+So writing gets its own decision. When the remember question fires, a second request asks, for
+each of the 5 closest stored memories: does this message make it **outdated**, **repeat** it, or
+leave it **unaffected**? Deleting a true memory and keeping a stale one are both mistakes, so the
+policy has three bands. At P(outdated) ≥ 0.6 the memory is **retired**: it leaves retrieval but
+stays in history. Between 0.4 and 0.6 it's kept but **flagged**, and the LLM is told it *may be
+out of date*. Below that it's kept.
+
+The first live test taught me something. "I got a new job" pushed P(outdated) for *"was laid off in
+March 2025"* to 0.72, but a past event stays true when life moves on. Writing that into the option
+descriptions made every probability drift upwards and caused four wrong retirements. What worked
+was a separate yes/no question in the same request: *is this a past event that's over and done?*
+If so, the memory can be flagged but never retired.
+
+On 27 hand-labelled messages, the curator retired 9 of 17 outdated memories, flagged 5 more, and
+retired **none of the 60 that were still true**. Its blind spot is finished plans: *"I finally
+bought the Royal Enfield"* doesn't retire *"saving up to buy a Royal Enfield"*.
 
 ## Does it work?
 
@@ -214,16 +238,36 @@ retrieval, and sent the chat model 79% fewer input tokens than the all-memories 
 it passes on only what the decider allowed. The LLM gate was also leak-free in the replies, but
 it threw away more helpful facts and made more wrong calls before the reply was even written.
 
+### Can you trust its confidence?
+
+A probability is only useful if it means something. Across the 260 labelled memory decisions,
+when the decider gave its top label 90% or more, it was right **97 times out of 97**. Between 80%
+and 90% it was right 87% of the time. Below 80%, though, it was close to a coin flip (50–59%),
+whatever it claimed. Its expected calibration error is 0.06.
+
+![Strands Decider 2B: stated confidence vs. accuracy](img/calibration.png)
+
+That's a usable signal. 73% of decisions came with high confidence and were 93% right; the other
+27% are where mistakes live. So I tried the obvious next step: send just the uncertain decisions to
+the LLM gate. It didn't help (215 right on its own, 217 at best with the LLM), because the cases
+the decider finds hard are hard for the 3B LLM too. So for now the signal tells you which
+decisions deserve a second look, not who should make them. A bigger Bedrock model might change that.
+
 ### What I learned about using Decider 2B
 
 - **Batch everything that reads the same conversation.** Eight memory questions plus remember,
   forget and tone go in one request. The conversation is encoded once, so the extra questions
   cost a few tokens each, not another call.
-- **Spend the probabilities, don't throw them away.** With a lenient cost table, sensitive facts
-  slipped through; the cautious one turned "probably fine" into "use it quietly" in the cases
-  where the doubt was real, without silencing everything.
-- **Tune the threshold on saved answers.** Decider answers are cheap to store, so the cost sweep
-  replays them without calling the model again.
+- **Ask about what's observable, not about value.** "Does this message reveal a fact worth
+  remembering?" never reached 0.7 on ten pieces of real news. "Is the user mainly sharing news
+  about themselves, rather than asking for something?" caught all ten, with no false alarms on
+  eight plain requests.
+- **Fix one bad case with a new narrow question, not a longer option.** Adding a clause to an
+  option description moved every probability, not just the broken one. The separate past-event
+  question fixed the case and left the rest alone.
+- **Keep the probabilities and tune on saved answers.** Decider answers are cheap to store, so the
+  cost sweep and the calibration chart replay them without calling the model again. With a lenient
+  cost table, sensitive facts slipped through on the development split; at 3, none did.
 - **It's good at relevance and at noticing when the user opens a subject.** When Arjun says he
   can't walk past the lake since Biscuit died, P(mention) for his lake walks goes from about 0.2
   to about 0.6.
@@ -242,6 +286,8 @@ it threw away more helpful facts and made more wrong calls before the reply was 
 - Tact still missed 3 of the 7 cases where the user raised a sensitive subject, and it only
   mentioned 32 of the 52 helpful facts.
 - "Said something sensitive" is a keyword check on the reply, which can miss paraphrases.
+- The past-event answers sit close to 0.5 for most memories, so that guard is a blunt tool: it
+  protects past events, but it also turns some correct retirements into flags.
 
 The dataset is small and hand-labelled by one person, so read these numbers as a signal, not a
 benchmark. The evaluation script is in the repo so you can rerun it on your own memories.
@@ -250,7 +296,8 @@ benchmark. The evaluation script is in the repo so you can rerun it on your own 
 
 The pattern is one standard-library Python file, `patterns/memory_gate/memory_gate.py`, plus a
 README and offline tests. It contains the questions, both designs, the cost-table policy, the
-prompt renderer and the Strands wiring. Drop it into any agent with long-term memory:
+write-side `MemoryCurator`, the prompt renderer and the Strands wiring. Drop it into any agent with
+long-term memory:
 
 ```python
 from memory_gate import MemoryGate, http_ask, render_context

@@ -47,6 +47,47 @@ Scored on the prefiltered candidates; memories labelled "either" are not scored.
 
 Gate tables: run `eval/results/run-20261021-202009.json`. Replies: run `eval/results/run-20261021-205552.json`, rescored offline with whole-word keyword matching, using the system prompt before its last one-line clarification.
 
+## Calibration: can you trust the decider's probabilities?
+
+![Calibration chart](../docs/img/calibration.png)
+
+260 labelled memory decisions from the gate run (choice design). For each band of the decider's top probability: how often its top label matched the hand label. A well-calibrated model is right about as often as it says.
+
+| decider's top probability | decisions | top label right | average top probability |
+|---|---|---|---|
+| 0.33 – 0.50 | 8 | 50% | 0.47 |
+| 0.50 – 0.60 | 17 | 53% | 0.55 |
+| 0.60 – 0.70 | 21 | 57% | 0.66 |
+| 0.70 – 0.80 | 34 | 59% | 0.75 |
+| 0.80 – 0.90 | 83 | 87% | 0.86 |
+| 0.90 – 1.00 | 97 | 100% | 0.92 |
+
+Expected calibration error: **0.062** (0 is perfect).
+
+### Low-confidence cases
+
+Confidence is the decider's own normalised score, (3·p_max − 1) / 2. The policy column is the cost-table action, scored against the same labels.
+
+| confidence | decisions | top label right | policy action right | sensitive facts mentioned |
+|---|---|---|---|---|
+| low (< 0.33) | 16 | 8/16 (50%) | 9/16 (56%) | 0/1 |
+| medium (0.33 – 0.66) | 54 | 29/54 (54%) | 29/54 (54%) | 0/6 |
+| high (≥ 0.66) | 190 | 177/190 (93%) | 177/190 (93%) | 0/7 |
+
+The policy overrode the decider's top label in 20 decisions: 9 became right, 8 became wrong, the rest stayed wrong. Taking the top label as-is would have mentioned 0 sensitive fact(s); the policy mentioned 0.
+
+**Would it help to hand the uncertain ones to the LLM?** Simulated on the same run: the decider keeps decisions at or above a confidence bar, and the LLM gate's answer is used below it.
+
+| confidence bar | decisions sent to the LLM | right, decider alone | right, decider + LLM |
+|---|---|---|---|
+| 0.33 | 16 | 215/260 | 217/260 |
+| 0.5 | 35 | 215/260 | 215/260 |
+| 0.66 | 70 | 215/260 | 208/260 |
+
+Not with this LLM: the cases the decider finds hard are hard for the 3B LLM too.
+
+Made by `eval/calibration.py` from the saved run, with no decider calls.
+
 ## Write side: which stored memories does a new message make outdated?
 
 27 messages × 3 stored memories, one decider call per message. Policy: retire at P(outdated) ≥ 0.6, flag as "may be out of date" from 0.4; a message that repeats a memory (P(repeat) ≥ 0.5) isn't stored again. With the past-event guard, a memory with P(past event) ≥ 0.5 is never retired, only flagged. Both policies are scored on the same decider answers.
