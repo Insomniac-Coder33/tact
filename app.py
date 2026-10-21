@@ -165,9 +165,10 @@ with chat_col:
                 st.write(turn["reply"])
 
     clicked = None
-    for col, (label, text) in zip(st.columns(len(DEMOS)), DEMOS):
-        if col.button(label, width="stretch", help=text):
-            clicked = text
+    for row in (DEMOS[:3], DEMOS[3:]):
+        for col, (label, text) in zip(st.columns(3), row):
+            if col.button(label, width="stretch", help=text):
+                clicked = text
     prompt = st.chat_input("Ask Tact anything, e.g. “I'm planning a trip to Paris, what should I see?”") or clicked
 
 if prompt:
