@@ -76,6 +76,22 @@ the behaviour, without retraining anything. The 3 came from a sweep on a dev spl
 A memory with `"locked": True` (the user asked not to hear about it) can still shape answers
 quietly, but the policy never lets it be mentioned.
 
+## Try it in 10 seconds
+
+No server, no GPU, no AWS account, no dependencies:
+
+```bash
+python patterns/memory_gate/quickstart.py
+```
+
+It replays answers recorded from a real Strands Decider 2B server (`quickstart_answers.json`) and
+runs everything else live: the cost-table policy, the curator's bands and the prompt block. Edit
+`COST` and rerun to watch decisions change. With a server, `--live http://127.0.0.1:8099` asks it
+directly, and `--record` refreshes the recording.
+
+The same trick works for your own tests and CI: wrap your `ask` function in `recording_ask(ask,
+"answers.json")` once, then use `replay_ask("answers.json")` anywhere you don't want a model server.
+
 ## Use it in 10 lines
 
 `memory_gate.py` is a single standard-library file. Copy it into your project.

@@ -284,7 +284,10 @@ decisions deserve a second look, not who should make them. A bigger Bedrock mode
 - The LLM gate uses the same small 3B model that writes the replies. A larger LLM would likely
   close some of the gap, at a higher cost per turn.
 - Tact still missed 3 of the 7 cases where the user raised a sensitive subject, and it only
-  mentioned 32 of the 52 helpful facts.
+  mentioned 32 of the 52 helpful facts. Missing useful facts is its weak side: asked for a Thai
+  dish, it skipped a severe peanut allergy. Naming allergies in the "mention" option didn't fix
+  it and made other decisions worse, so safety constraints like allergies may be better handled
+  by a rule than by a judgment call.
 - "Said something sensitive" is a keyword check on the reply, which can miss paraphrases.
 - The past-event answers sit close to 0.5 for most memories, so that guard is a blunt tool: it
   protects past events, but it also turns some correct retirements into flags.
@@ -298,6 +301,9 @@ The pattern is one standard-library Python file, `patterns/memory_gate/memory_ga
 README and offline tests. It contains the questions, both designs, the cost-table policy, the
 write-side `MemoryCurator`, the prompt renderer and the Strands wiring. Drop it into any agent with
 long-term memory:
+
+Try it first with no setup at all: `python patterns/memory_gate/quickstart.py` replays answers
+recorded from a real decider and runs the policy live, with no server, GPU or AWS account.
 
 ```python
 from memory_gate import MemoryGate, http_ask, render_context

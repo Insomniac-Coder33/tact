@@ -30,10 +30,12 @@ instead of leaving two contradicting facts in the store.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import time
 import urllib.request
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
 
 LABELS = ("mention", "quiet", "skip")
@@ -127,6 +129,41 @@ def http_ask(url: str = "http://127.0.0.1:8099", timeout: float = 180.0) -> AskF
 
     ask.last_usage = {}  # type: ignore[attr-defined]
     return ask
+
+
+def _request_key(state: str, questions: Mapping[str, dict]) -> str:
+    blob = json.dumps([state, dict(questions)], sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(blob.encode()).hexdigest()[:16]
+
+
+def recording_ask(ask: AskFn, path: str | Path) -> AskFn:
+    """Wrap an `ask` function so every request and its answers are saved to a JSON file."""
+    path = Path(path)
+
+    def record(state: str, questions: Mapping[str, dict]) -> Mapping[str, dict]:
+        answers = ask(state, questions)
+        saved = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        saved[_request_key(state, questions)] = dict(answers)
+        path.write_text(json.dumps(saved, indent=1, ensure_ascii=False), encoding="utf-8")
+        return answers
+
+    record.last_usage = {}  # type: ignore[attr-defined]
+    return record
+
+
+def replay_ask(path: str | Path) -> AskFn:
+    """An `ask` function that answers from a recording: for demos, tests and CI without a
+    decider server. A request that was never recorded raises KeyError."""
+    saved = json.loads(Path(path).read_text(encoding="utf-8"))
+
+    def replay(state: str, questions: Mapping[str, dict]) -> Mapping[str, dict]:
+        key = _request_key(state, questions)
+        if key not in saved:
+            raise KeyError(f"request {key} is not in {path}; record it with recording_ask()")
+        return saved[key]
+
+    replay.last_usage = {}  # type: ignore[attr-defined]
+    return replay
 
 
 def noul(instructions: str, criteria: Mapping[str, str]) -> dict:
@@ -343,16 +380,3 @@ class MemoryCurator:
         except Exception as e:  # noqa: BLE001 - failing safe means: touch no stored memory
             return CurateResult([], True, 0.0, error=f"{type(e).__name__}: {e}")
 
-
-if __name__ == "__main__":
-    # Minimal demo: needs `strands-decider serve <model> --port 8099` running.
-    gate = MemoryGate(http_ask())
-    memories = [
-        {"id": "a", "text": "The user is severely allergic to peanuts."},
-        {"id": "b", "text": "The user's dog passed away last month."},
-        {"id": "c", "text": "The user prefers aisle seats on flights."},
-    ]
-    result = gate.run([("user", "Can you suggest a Thai dish I could cook tonight?")], memories)
-    for v in result.verdicts:
-        print(f"{v.action:8} {v.reason:60}  {v.text}")
-    print(f"{result.latency_ms:.0f} ms for {len(memories)} memories in one call")

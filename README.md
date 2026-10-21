@@ -12,7 +12,16 @@ action: when in doubt about saying something, Tact uses it quietly.
 
 Tact isn't a static "sensitive" tag. *"I'm thinking of getting a puppy"* keeps the dog that died
 unsaid; *"I still miss Biscuit"* lets Tact acknowledge him. Same memory, different conversation,
-different decision.
+different decision. And when Arjun says *"I just moved to Bangalore"*, a second decision retires
+"lives in Pune", so old facts stop coming back.
+
+**Try the pattern in 10 seconds**, with no server, GPU or AWS account (it replays answers recorded
+from a real Decider 2B):
+
+```bash
+git clone https://github.com/Insomniac-Coder33/tact && cd tact
+python patterns/memory_gate/quickstart.py
+```
 
 ```
 user message
@@ -80,6 +89,7 @@ uv run python infra/decider_ec2.py up      # stop with: infra/decider_ec2.py sto
 uv run streamlit run app.py
 
 # 3. The evaluation, and offline tests (no server needed)
+python patterns/memory_gate/quickstart.py   # the pattern in 10 seconds, replaying recorded answers
 uv run python eval/run_eval.py
 uv run python -m unittest discover -s tests
 ```

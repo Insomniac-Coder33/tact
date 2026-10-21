@@ -1,0 +1,294 @@
+{
+ "33ad5198406e6562": {
+  "m1": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.1332,
+    "quiet": 0.0616,
+    "skip": 0.8053
+   },
+   "confidence": 0.7079
+  },
+  "m2": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0741,
+    "quiet": 0.1349,
+    "skip": 0.791
+   },
+   "confidence": 0.6865
+  },
+  "m3": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.2706,
+    "quiet": 0.0473,
+    "skip": 0.6821
+   },
+   "confidence": 0.5231
+  },
+  "m4": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0346,
+    "quiet": 0.1006,
+    "skip": 0.8649
+   },
+   "confidence": 0.7973
+  },
+  "m5": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0342,
+    "quiet": 0.0426,
+    "skip": 0.9232
+   },
+   "confidence": 0.8848
+  },
+  "m6": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.24,
+    "quiet": 0.0469,
+    "skip": 0.7131
+   },
+   "confidence": 0.5696
+  }
+ },
+ "21e0b44830d86068": {
+  "m1": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.06,
+    "quiet": 0.0859,
+    "skip": 0.854
+   },
+   "confidence": 0.781
+  },
+  "m2": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.2048,
+    "quiet": 0.263,
+    "skip": 0.5322
+   },
+   "confidence": 0.2983
+  },
+  "m3": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0886,
+    "quiet": 0.0563,
+    "skip": 0.8551
+   },
+   "confidence": 0.7827
+  },
+  "m4": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0252,
+    "quiet": 0.1165,
+    "skip": 0.8583
+   },
+   "confidence": 0.7875
+  },
+  "m5": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0236,
+    "quiet": 0.0466,
+    "skip": 0.9298
+   },
+   "confidence": 0.8947
+  },
+  "m6": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.1061,
+    "quiet": 0.0592,
+    "skip": 0.8347
+   },
+   "confidence": 0.7521
+  }
+ },
+ "58fe6a3986c296f6": {
+  "m1": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0344,
+    "quiet": 0.1104,
+    "skip": 0.8552
+   },
+   "confidence": 0.7828
+  },
+  "m2": {
+   "type": "choice",
+   "choice": "mention",
+   "probabilities": {
+    "mention": 0.6553,
+    "quiet": 0.204,
+    "skip": 0.1407
+   },
+   "confidence": 0.483
+  },
+  "m3": {
+   "type": "choice",
+   "choice": "mention",
+   "probabilities": {
+    "mention": 0.7057,
+    "quiet": 0.136,
+    "skip": 0.1583
+   },
+   "confidence": 0.5585
+  },
+  "m4": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0262,
+    "quiet": 0.1341,
+    "skip": 0.8397
+   },
+   "confidence": 0.7595
+  },
+  "m5": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0182,
+    "quiet": 0.085,
+    "skip": 0.8968
+   },
+   "confidence": 0.8452
+  },
+  "m6": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0459,
+    "quiet": 0.1285,
+    "skip": 0.8256
+   },
+   "confidence": 0.7384
+  }
+ },
+ "16f42389672d238e": {
+  "m1": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.3608,
+    "quiet": 0.0886,
+    "skip": 0.5506
+   },
+   "confidence": 0.3259
+  },
+  "m2": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0179,
+    "quiet": 0.0872,
+    "skip": 0.8949
+   },
+   "confidence": 0.8424
+  },
+  "m3": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0193,
+    "quiet": 0.0327,
+    "skip": 0.948
+   },
+   "confidence": 0.922
+  },
+  "m4": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0163,
+    "quiet": 0.0796,
+    "skip": 0.9041
+   },
+   "confidence": 0.8561
+  },
+  "m5": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0189,
+    "quiet": 0.0361,
+    "skip": 0.945
+   },
+   "confidence": 0.9176
+  },
+  "m6": {
+   "type": "choice",
+   "choice": "skip",
+   "probabilities": {
+    "mention": 0.0426,
+    "quiet": 0.0385,
+    "skip": 0.9189
+   },
+   "confidence": 0.8783
+  }
+ },
+ "938529a96f3c8af9": {
+  "m2": {
+   "type": "choice",
+   "choice": "unaffected",
+   "probabilities": {
+    "outdated": 0.234,
+    "repeat": 0.1765,
+    "unaffected": 0.5895
+   },
+   "confidence": 0.3842
+  },
+  "m5": {
+   "type": "choice",
+   "choice": "unaffected",
+   "probabilities": {
+    "outdated": 0.2941,
+    "repeat": 0.2133,
+    "unaffected": 0.4926
+   },
+   "confidence": 0.2389
+  },
+  "m6": {
+   "type": "choice",
+   "choice": "outdated",
+   "probabilities": {
+    "outdated": 0.9098,
+    "repeat": 0.0467,
+    "unaffected": 0.0434
+   },
+   "confidence": 0.8648
+  },
+  "m2:past": {
+   "type": "noul",
+   "noul": 0.7466
+  },
+  "m5:past": {
+   "type": "noul",
+   "noul": 0.4506
+  },
+  "m6:past": {
+   "type": "noul",
+   "noul": 0.3957
+  }
+ }
+}

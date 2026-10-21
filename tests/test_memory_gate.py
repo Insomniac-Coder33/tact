@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "patterns" / "memory_gate"))
 sys.path.insert(0, str(ROOT / "src"))
 
-from memory_gate import MemoryCurator, MemoryGate, render_context  # noqa: E402
+from memory_gate import MemoryCurator, MemoryGate, recording_ask, render_context, replay_ask  # noqa: E402
 
 MEMORIES = [
     {"id": "veg", "text": "The user is vegetarian."},
@@ -195,6 +195,31 @@ class CuratorTest(unittest.TestCase):
         stub = StubDecider({"race": choice_answer(.9, .05, .05)})
         result = MemoryGate(stub).run([("user", "Plan my January?")], [{**self.PUNE[1], "stale": True}])
         self.assertIn("may be out of date", render_context(result))
+
+
+class ReplayTest(unittest.TestCase):
+    def test_recorded_answers_replay_without_a_server(self):
+        import tempfile
+        stub = StubDecider({"veg": choice_answer(.9, .05, .05), "ex": choice_answer(.05, .1, .85),
+                            "seat": choice_answer(.05, .05, .9)})
+        conversation = [("user", "Dinner ideas?")]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "answers.json"
+            live = MemoryGate(recording_ask(stub, path)).run(conversation, MEMORIES)
+            replayed = MemoryGate(replay_ask(path)).run(conversation, MEMORIES)
+            self.assertEqual([v.action for v in live.verdicts], [v.action for v in replayed.verdicts])
+            with self.assertRaises(KeyError):  # a request that was never recorded
+                MemoryGate(replay_ask(path)).run([("user", "Something else")], MEMORIES)
+
+    def test_quickstart_recording_is_complete(self):
+        import io
+        from contextlib import redirect_stdout
+        sys.path.insert(0, str(ROOT / "patterns" / "memory_gate"))
+        import quickstart
+        sys.argv = ["quickstart.py"]
+        with redirect_stdout(io.StringIO()) as out:
+            quickstart.main()
+        self.assertIn("retire", out.getvalue())
 
 
 if __name__ == "__main__":

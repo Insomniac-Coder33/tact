@@ -41,6 +41,18 @@ VARIANTS = {
                   "embarrass or upset the user, so it should only make the reply more careful",
          "skip": "ignore it: it has no bearing on what a good reply would say"},
     ),
+    # Rejected: naming allergies and budgets in "mention" moved the peanut allergy only from
+    # skip to quiet on a Thai-dish request, and at cost 3 scored 73% with 1 sensitive fact said.
+    "V4": (  # V2, with constraints the reply must respect named in "mention"
+        "An AI assistant is about to reply to the user's latest message. It remembers this fact "
+        "about the user:\n{memory}\nHow should the assistant treat this fact in its reply?",
+        {"mention": "use it openly: the reply should respect or build on it (an allergy, diet, health "
+                    "need, budget or schedule it must fit, or a preference, plan or interest that fits "
+                    "the request), and bringing it up feels natural",
+         "quiet": "use it silently: it is related to the request, but saying it out loud could hurt, "
+                  "embarrass or upset the user, so it should only make the reply more careful",
+         "skip": "ignore it: it has no bearing on what a good reply would say"},
+    ),
     "V3": (
         "A thoughtful friend who knows this about the user is answering the user's latest "
         "message:\n{memory}\nWhat would the friend do with this fact?",
