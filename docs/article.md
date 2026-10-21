@@ -260,7 +260,7 @@ result = gate.safe_run(conversation=[("user", "Any tips for my trip to Paris?")]
 system_prompt = BASE_PROMPT + "\n\n" + render_context(result)
 ```
 
-- **Code (Apache-2.0):** `[[REPO_URL]]`
+- **Code (Apache-2.0):** https://github.com/Insomniac-Coder33/tact
 - **Demo video:** `[[VIDEO_URL]]`
 
 A good memory isn't one that remembers everything. It's one that knows what to leave unsaid.
