@@ -113,12 +113,17 @@ def render_panel(turn: dict) -> None:
     for v in sorted(gate.verdicts, key=lambda v: (order[v.action], -v.probabilities.get(v.action, 0))):
         icon, label = BADGE[v.action]
         lock = " 🔒" if v.locked else ""
-        st.markdown(f"{icon} **{label}**{lock} · <small>{v.text}</small>", unsafe_allow_html=True)
+        # Below 0.33 confidence the decider was right only about half the time in the eval
+        # (eval/RESULTS.md, calibration), so flag those as close calls.
+        close = (f" · <span title='confidence {v.confidence:.2f}: in testing, decisions this unsure "
+                 f"were right about half the time'>⚖️ close call</span>" if v.confidence < 0.33 else "")
+        st.markdown(f"{icon} **{label}**{lock}{close} · <small>{v.text}</small>", unsafe_allow_html=True)
         if v.probabilities:
             st.markdown(prob_bar(v.probabilities), unsafe_allow_html=True)
         if v.label != v.action:
             st.caption(f"↳ {v.reason}")
-    st.caption("Bar: 🟩 P(mention) 🟨 P(quiet) ⬜ P(skip)")
+    st.caption("Bar: 🟩 P(mention) 🟨 P(quiet) ⬜ P(skip) · ⚖️ close call: the decider was unsure "
+               "(right about half the time in testing)")
     if turn.get("remembered"):
         st.info(f"📝 Remembered (P={turn['p_remember']:.2f}): {turn['remembered']['text']}")
     render_curation(turn.get("curation"))

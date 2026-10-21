@@ -146,6 +146,51 @@ class ForgetTest(unittest.TestCase):
         self.assertIn("gentle", event.agent.system_prompt)
 
 
+class FailureTest(unittest.TestCase):
+    def test_forget_follow_up_failure_locks_nothing(self):
+        from tact.agent import MemoryGateIntervention
+
+        class Store:
+            memories = [dict(m) for m in MEMORIES]
+
+            def candidates(self, query, k=8):
+                return self.memories
+
+            def lock(self, memory_id):
+                raise AssertionError("nothing should be locked")
+
+        answers = {"veg": choice_answer(.05, .05, .90), "ex": choice_answer(.05, .10, .85),
+                   "seat": choice_answer(.05, .05, .90),
+                   "_remember": {"noul": .1}, "_forget": {"noul": .95},
+                   "_tone": {"choice": "practical", "confidence": .2}}
+
+        def ask(state, questions):
+            if questions["ex"]["type"] == "noul":  # the follow-up "which memory?" call
+                raise TimeoutError("decider timed out")
+            return {q: answers[q] for q in questions}
+
+        hook = MemoryGateIntervention(MemoryGate(ask), Store())
+        event = SimpleNamespace(
+            messages=[{"role": "user", "content": [{"text": "Don't bring up Meera again."}]}],
+            agent=SimpleNamespace(messages=[], system_prompt=""))
+        hook.before_invocation(event).apply(event)
+        self.assertEqual(hook.last_locked, [])
+        self.assertIsNone(hook.last_tone)  # tone below its threshold is ignored
+
+    def test_retired_memory_is_never_retrieved(self):
+        from unittest import mock
+
+        import numpy as np
+        from tact import memory as memory_module
+
+        store = memory_module.MemoryStore.__new__(memory_module.MemoryStore)
+        store.memories = [{"id": "pune", "text": "lives in Pune"}, {"id": "blr", "text": "lives in Bangalore"}]
+        store.retire("pune", replaced_by="blr")
+        with mock.patch.object(memory_module.bedrock, "embed", return_value=np.ones(4)):
+            self.assertEqual([m["id"] for m in store.candidates("where do I live?")], ["blr"])
+        self.assertEqual(len(store.memories), 2)  # retired, not deleted
+
+
 def update_answer(outdated: float, repeat: float, unaffected: float) -> dict:
     return {"type": "choice", "probabilities":
             {"outdated": outdated, "repeat": repeat, "unaffected": unaffected}}

@@ -188,6 +188,25 @@ the Royal Enfield" doesn't retire "saving up to buy a Royal Enfield".
 Lesson from tuning it: when one case went wrong, adding a clause to an option description made
 *every* probability drift. A separate narrow yes/no question fixed the case without moving the rest.
 
+## When things go wrong
+
+Two rules decide every failure. When the agent is unsure about **saying** something, it says
+less. When it is unsure about **changing** what it knows, it changes nothing. Each row is
+a test in [`tests/test_memory_gate.py`](../../tests/test_memory_gate.py).
+
+| what goes wrong | what the agent does | test |
+|---|---|---|
+| decider unreachable while choosing memories | answers with **no** memories this turn; never a stale or ungated block | `test_unreachable_decider_means_no_memories` |
+| decider unsure whether a fact is OK to say (e.g. 60% mention, 25% quiet) | uses it **quietly** | `test_a_little_doubt_about_saying_it_means_quiet` |
+| user asked never to hear about something, decider still says "mention" at 95% | never mentioned | `test_locked_memory_is_never_mentioned` |
+| "which memory did they mean?" follow-up times out | **nothing is locked**, the reply goes ahead | `test_forget_follow_up_failure_locks_nothing` |
+| decider unreachable while curating | **no stored memory changes**; the new fact is still saved | `test_unreachable_decider_changes_nothing` |
+| a past event looks outdated ("laid off" after "new job") | flagged, never retired | `test_a_past_event_is_flagged_not_retired` |
+| decider unsure whether a fact is outdated (0.4–0.6) | kept, and the LLM is told it *may be out of date* | `test_three_bands_retire_doubt_keep`, `test_stale_memory_is_flagged_for_the_llm` |
+| a retired memory | never retrieved again, but kept in history | `test_retired_memory_is_never_retrieved` |
+| the message repeats a stored fact | not stored twice | `test_a_repeat_is_not_stored_again` |
+| a replayed request was never recorded | fails loudly (`KeyError`), never a made-up answer | `test_recorded_answers_replay_without_a_server` |
+
 ## Tuning
 
 - Change the option descriptions first; they carry most of the signal.
