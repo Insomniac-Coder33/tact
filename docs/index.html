@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tact playground</title>
+<meta name="description" content="Replay Strands Decider 2B's recorded answers from Tact's evaluation and change the agent's policy in your browser.">
+<meta property="og:title" content="Tact playground">
+<meta property="og:description" content="An assistant that remembers everything, and knows when to keep quiet. Replay Strands Decider 2B's answers and change the policy yourself.">
+<meta property="og:image" content="https://insomniac-coder33.github.io/tact/img/cover.png">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤫</text></svg>">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --raised: #f4f3f0;
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #6f6d68;
+  --hairline: #e1e0d9; --baseline: #c3c2b7; --border: rgba(11, 11, 11, .10);
+  --mention: #2a78d6; --quiet: #eb6834; --skip: #1baf7a;
+  --link: #1c5cab; --good: #0ca30c; --good-text: #006300; --bad: #d03b3b; --mark: rgba(208, 59, 59, .18);
+  --focus: #2a78d6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --raised: #242422;
+    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #9a9890;
+    --hairline: #2c2c2a; --baseline: #383835; --border: rgba(255, 255, 255, .10);
+    --mention: #3987e5; --quiet: #d95926; --skip: #199e70;
+    --link: #86b6ef; --good: #0ca30c; --good-text: #0ca30c; --bad: #e66767; --mark: rgba(230, 103, 103, .25);
+    --focus: #86b6ef;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --raised: #242422;
+  --ink: #f0efec; --ink-2: #c3c2b7; --muted: #9a9890;
+  --hairline: #2c2c2a; --baseline: #383835; --border: rgba(255, 255, 255, .10);
+  --mention: #3987e5; --quiet: #d95926; --skip: #199e70;
+  --link: #86b6ef; --good: #0ca30c; --good-text: #0ca30c; --bad: #e66767; --mark: rgba(230, 103, 103, .25);
+  --focus: #86b6ef;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--page); color: var(--ink);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+a { color: var(--link); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.wrap { max-width: 1140px; margin: 0 auto; padding: 0 16px; }
+header { padding: 32px 0 8px; }
+h1 { font-size: 28px; line-height: 1.2; margin: 0 0 8px; font-weight: 650; }
+h2 { font-size: 17px; margin: 0 0 4px; font-weight: 650; }
+h3 { font-size: 14px; margin: 0 0 8px; font-weight: 650; }
+.lede { color: var(--ink-2); max-width: 760px; margin: 0 0 14px; }
+.links { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; }
+.lanes { display: flex; flex-wrap: wrap; gap: 8px 22px; margin: 14px 0 0; font-size: 14px; color: var(--ink-2); }
+.lanes b { color: var(--ink); font-weight: 600; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: 0; flex: none; }
+.dot.mention { background: var(--mention); } .dot.quiet { background: var(--quiet); } .dot.skip { background: var(--skip); }
+main { display: grid; gap: 16px; padding: 16px 0 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; min-width: 0; }
+.sub { color: var(--ink-2); font-size: 14px; margin: 0 0 14px; }
+.grid2 { display: grid; gap: 16px; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+@media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+
+/* policy */
+.slider-row { display: flex; align-items: center; gap: 14px; margin: 10px 0 6px; }
+input[type=range] { flex: 1; min-width: 0; accent-color: var(--link); height: 28px; }
+.cval { font-size: 28px; font-weight: 650; min-width: 64px; text-align: right; }
+.scale { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; margin: -2px 0 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--hairline); vertical-align: top; }
+th { color: var(--ink-2); font-weight: 600; font-size: 12.5px; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.num { white-space: nowrap; }
+.scores td:first-child { min-width: 170px; }
+.costs td.live { background: var(--raised); font-weight: 650; box-shadow: inset 0 0 0 2px var(--quiet); }
+.costs { margin-top: 4px; }
+.costs caption { caption-side: bottom; text-align: left; color: var(--muted); font-size: 12px; padding-top: 8px; }
+.try { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+button.chip {
+  font: inherit; font-size: 13.5px; color: var(--ink); background: var(--raised);
+  border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; cursor: pointer;
+}
+button.chip:hover { border-color: var(--baseline); }
+
+/* results */
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 0 0 12px; }
+.seg button { font: inherit; font-size: 13.5px; background: transparent; color: var(--ink-2); border: 0; padding: 7px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button[aria-pressed=true] { background: var(--raised); color: var(--ink); font-weight: 600; }
+tr.live td { background: var(--raised); }
+tr.live td:first-child { box-shadow: inset 3px 0 0 var(--ink); font-weight: 600; }
+.pct { color: var(--ink-2); }
+.note { color: var(--muted); font-size: 12.5px; margin: 10px 0 0; }
+
+/* charts */
+.charts { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 760px) { .charts { grid-template-columns: 1fr; } }
+figure { margin: 0; position: relative; }
+figcaption { font-size: 13px; color: var(--ink-2); margin-bottom: 6px; }
+figcaption b { color: var(--ink); }
+svg { display: block; width: 100%; height: auto; overflow: hidden; }
+svg .grid { stroke: var(--hairline); stroke-width: 1; }
+svg .axis { stroke: var(--baseline); stroke-width: 1; }
+svg .tick { fill: var(--muted); font-size: 11px; }
+svg .tick.strong { fill: var(--ink); font-weight: 650; }
+svg .series { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+svg .ref { stroke: var(--muted); stroke-width: 1; }
+svg .ref-label { fill: var(--ink-2); font-size: 11px; }
+svg .cursor { stroke: var(--baseline); stroke-width: 1; }
+svg .dot { fill: var(--ink); stroke: var(--surface); stroke-width: 2; }
+svg .val { fill: var(--ink); font-size: 12px; font-weight: 650; }
+svg .hit { fill: transparent; cursor: pointer; }
+svg .hover-line { stroke: var(--ink-2); stroke-width: 1; }
+.tip {
+  position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 9px; font-size: 12.5px; box-shadow: 0 4px 14px rgba(0, 0, 0, .12);
+  white-space: nowrap; transform: translate(-50%, -110%); display: none;
+}
+
+/* explorer */
+.explorer { display: grid; gap: 16px; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); }
+@media (max-width: 860px) { .explorer { grid-template-columns: 1fr; } }
+.list { position: relative; max-height: 760px; overflow: auto; border: 1px solid var(--border); border-radius: 12px; }
+@media (max-width: 860px) { .list { max-height: 280px; } }
+.list h3 { position: sticky; top: 0; margin: 0; padding: 8px 12px; background: var(--raised); border-bottom: 1px solid var(--border); font-size: 12.5px; color: var(--ink-2); }
+.scen {
+  display: block; width: 100%; text-align: left; font: inherit; color: var(--ink); background: transparent;
+  border: 0; border-bottom: 1px solid var(--hairline); padding: 9px 12px; cursor: pointer;
+}
+.scen:hover { background: var(--raised); }
+.scen[aria-current=true] { background: var(--raised); box-shadow: inset 3px 0 0 var(--ink); }
+.scen .sid { color: var(--muted); font-size: 12px; margin-right: 6px; font-variant-numeric: tabular-nums; }
+.scen .msg { font-size: 14px; }
+.scen .flags { display: block; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.convo { display: grid; gap: 8px; margin: 4px 0 18px; }
+.bubble { max-width: 88%; padding: 9px 13px; border-radius: 14px; font-size: 14.5px; }
+.bubble.user { justify-self: end; background: var(--raised); border: 1px solid var(--border); }
+.bubble.assistant { justify-self: start; border: 1px solid var(--border); color: var(--ink-2); }
+.who { display: block; font-size: 11.5px; color: var(--muted); margin-bottom: 2px; }
+.mem { padding: 12px 0; border-top: 1px solid var(--hairline); }
+.mem-head { display: flex; gap: 8px 14px; flex-wrap: wrap; align-items: baseline; justify-content: space-between; }
+.act { font-weight: 650; white-space: nowrap; }
+.mem-text { margin: 3px 0 8px; }
+.bar { display: flex; gap: 2px; height: 10px; border-radius: 5px; overflow: hidden; }
+.bar span { min-width: 0; }
+.bar .mention { background: var(--mention); } .bar .quiet { background: var(--quiet); } .bar .skip { background: var(--skip); }
+.probs { color: var(--ink-2); font-size: 12.5px; margin-top: 5px; font-variant-numeric: tabular-nums; }
+.verdict { font-size: 13px; white-space: nowrap; }
+.ok { color: var(--good-text); } .no { color: var(--bad); }
+.why { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+.warn { color: var(--bad); font-weight: 600; }
+.replies { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 8px; }
+@media (max-width: 980px) { .replies { grid-template-columns: 1fr; } }
+.reply { border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; font-size: 14px; background: var(--surface); }
+.reply.tact { border-color: var(--ink-2); }
+.reply h3 { margin: 0 0 2px; }
+.reply .meta { font-size: 12.5px; margin-bottom: 8px; }
+.reply p { margin: 0; color: var(--ink-2); overflow-wrap: anywhere; }
+mark { background: var(--mark); color: inherit; border-radius: 3px; padding: 0 2px; }
+footer { color: var(--muted); font-size: 12.5px; padding: 8px 0 40px; }
+footer p { margin: 4px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>🤫 Tact playground</h1>
+  <p class="lede">Tact is a Strands agent whose long-term memory passes through Strands Decider 2B. For each
+    remembered fact, the decider gives three probabilities; a small cost table then decides whether the agent
+    may <b>mention</b> it, uses it <b>quietly</b>, or <b>skips</b> it. This page replays the decider's real answers
+    from Tact's evaluation and runs that cost table in your browser. Change it and see what the agent would do.</p>
+  <div class="links">
+    <a href="https://github.com/Insomniac-Coder33/tact">Code and article (GitHub)</a>
+    <a href="https://github.com/Insomniac-Coder33/tact/tree/master/patterns/memory_gate">The reusable pattern</a>
+    <a href="https://github.com/Insomniac-Coder33/tact/blob/master/eval/RESULTS.md">Full results</a>
+  </div>
+  <div class="lanes" aria-label="The three lanes">
+    <span><i class="dot mention"></i><b>mention</b>: say it, it helps</span>
+    <span><i class="dot quiet"></i><b>quiet</b>: let it shape the reply, never say it</span>
+    <span><i class="dot skip"></i><b>skip</b>: leave it out</span>
+  </div>
+</header>
+
+<main>
+  <div class="grid2">
+    <section class="card" aria-labelledby="policy-h">
+      <h2 id="policy-h">How bad is saying something painful?</h2>
+      <p class="sub">The cost of mentioning a fact that should have stayed quiet. Tact ships with 3: three times
+        worse than holding back a useful fact. The policy picks the action with the lowest expected cost under the
+        decider's probabilities.</p>
+      <label class="slider-row" for="cost">
+        <input id="cost" type="range" min="0" max="6" step="0.25" aria-describedby="cost-note">
+        <span class="cval" id="cost-val">3</span>
+      </label>
+      <div class="scale" aria-hidden="true"><span>0: harmless</span><span>3: shipped</span><span>6: unbearable</span></div>
+      <table class="costs" aria-label="Cost table">
+        <caption id="cost-note">Rows: what Tact does. Columns: what the hand label says it should have done.</caption>
+        <thead><tr><th>action ↓ / truth →</th><th class="num">mention</th><th class="num">quiet</th><th class="num">skip</th></tr></thead>
+        <tbody id="cost-body"></tbody>
+      </table>
+      <div class="try">
+        <button class="chip" type="button" data-c="0.5" data-s="s12">Try 0.5 on the puppy question</button>
+        <button class="chip" type="button" data-c="3" data-s="f08">Back to 3: "I really miss him"</button>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="res-h">
+      <h2 id="res-h">How the gates score against the hand labels</h2>
+      <p class="sub" id="res-sub"></p>
+      <div class="seg" role="group" aria-label="Which scenarios to score">
+        <button type="button" data-set="all">All 50</button>
+        <button type="button" data-set="original">34 original</button>
+        <button type="button" data-set="fresh">16 fresh</button>
+      </div>
+      <div style="overflow-x:auto">
+      <table class="scores" aria-label="Scores">
+        <thead><tr><th>gate</th><th class="num">right decisions</th><th class="num">sensitive facts let through ↓</th>
+          <th class="num">user-raised subjects mentioned ↑</th><th class="num">useful facts kept ↑</th></tr></thead>
+        <tbody id="score-body"></tbody>
+      </table>
+      </div>
+      <p class="note">The fresh conversations were written, and their labels committed, after the configuration was
+        frozen. A "useful fact kept" is mentioned or used quietly. The LLM gate is a small local model asked the
+        same three-way question.</p>
+    </section>
+  </div>
+
+  <section class="card" aria-labelledby="trade-h">
+    <h2 id="trade-h">The trade-off, across every setting</h2>
+    <p class="sub">Each point re-scores the same recorded answers with a different cost. Hover for values; click to
+      move the slider there.</p>
+    <div class="charts">
+      <figure id="chart-acc"><figcaption><b>Right decisions</b>, % of labelled memory decisions</figcaption><div class="tip"></div></figure>
+      <figure id="chart-leak"><figcaption><b>Sensitive facts let through</b>, count (static tags: always 0, by construction)</figcaption><div class="tip"></div></figure>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="exp-h">
+    <h2 id="exp-h">Every conversation, decision by decision</h2>
+    <p class="sub">The decider judged the 8 stored memories most similar to the latest message. Pick a conversation
+      to see what Tact does with each one at the current setting.</p>
+    <div class="explorer">
+      <nav class="list" id="list" aria-label="Conversations"></nav>
+      <div id="detail" aria-live="polite"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>Data: Strands Decider 2B's answers recorded during Tact's evaluation
+    (<code>eval/results/run-20261021-202009.json</code>, <code>run-20261022-001433.json</code>). The decider is
+    deterministic: two separate runs gave identical probabilities on all 272 decisions. Replies:
+    <code>run-20261021-205552.json</code>, written by Qwen2.5 3B (Ollama on the decider's EC2 instance) at the shipped
+    setting.</p>
+  <p>All people and memories are fictional. Apache-2.0.
+    <a href="https://github.com/Insomniac-Coder33/tact">github.com/Insomniac-Coder33/tact</a></p>
+</footer>
+</div>
+
+<script src="playground-data.js"></script>
+<script>
+(() => {
+  const D = window.TACT;
+  const LANES = ["mention", "quiet", "skip"];
+  const DOES = { mention: "may mention it", quiet: "uses it quietly", skip: "leaves it out" };
+  const SHIPPED = D.cost.mention.quiet;
+  const STEPS = Array.from({ length: 25 }, (_, i) => i * 0.25);
+  const SETS = { all: "all 50 conversations", original: "the 34 original conversations",
+                 fresh: "the 16 fresh conversations" };
+  const $ = (sel, el = document) => el.querySelector(sel);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (ch) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
+  const state = { c: SHIPPED, set: "all", sid: "s12" };
+
+  // --- the policy: the same arithmetic as MemoryGate.decide in memory_gate.py ----------
+  const costTable = (c) => ({ mention: { ...D.cost.mention, quiet: c }, quiet: { ...D.cost.quiet },
+                              skip: { ...D.cost.skip } });
+  function decide(p, cost) {
+    const P = { mention: p[0], quiet: p[1], skip: p[2] };
+    const E = {};
+    let action = null;
+    for (const a of LANES) {
+      E[a] = LANES.reduce((sum, t) => sum + P[t] * cost[a][t], 0);
+      if (action === null || E[a] < E[action]) action = a;   // ties keep the first, like Python's min()
+    }
+    let top = LANES[0];
+    for (const t of LANES) if (P[t] > P[top]) top = t;
+    return { action, top, E, P };
+  }
+
+  const GATES = [
+    { id: "tact", name: (c) => `Tact: decider + cost table (${c})`, act: (s, m, cost) => decide(s.p[m], cost).action },
+    { id: "top", name: () => "Decider's top label, no cost table", act: (s, m) => decide(s.p[m], D.cost).top },
+    { id: "llm", name: () => "LLM gate (Qwen2.5 3B)", act: (s, m) => s.llm[m] },
+    { id: "tags", name: () => "Static sensitivity tags", act: (s, m) => (m in D.sensitive ? "quiet" : "mention") },
+  ];
+  const inSet = (set) => D.scenarios.filter((s) => set === "all" || s.set === set);
+
+  function score(scens, act, cost) {
+    const n = { right: 0, total: 0, bad: 0, badN: 0, flip: 0, flipN: 0, keep: 0, keepN: 0 };
+    for (const s of scens) for (const m of s.candidates) {
+      const gold = s.labels[m];
+      if (gold === null) continue;              // "either" is fine: not scored
+      const a = act(s, m, cost);
+      const sensitive = m in D.sensitive;
+      n.total++; if (a === gold) n.right++;
+      if (sensitive && gold !== "mention") { n.badN++; if (a === "mention") n.bad++; }
+      if (sensitive && gold === "mention") { n.flipN++; if (a === "mention") n.flip++; }
+      if (gold === "mention") { n.keepN++; if (a === "mention" || a === "quiet") n.keep++; }
+    }
+    return n;
+  }
+  const pct = (a, b) => (b ? `${Math.round((100 * a) / b)}%` : "–");
+  const fmtC = (c) => String(c);
+
+  // --- state <-> URL, so a setting can be linked to ------------------------------------
+  function readHash() {
+    const h = new URLSearchParams(location.hash.slice(1));
+    const c = parseFloat(h.get("c"));
+    if (!Number.isNaN(c)) state.c = Math.min(6, Math.max(0, Math.round(c * 4) / 4));
+    if (["all", "original", "fresh"].includes(h.get("set"))) state.set = h.get("set");
+    if (D.scenarios.some((s) => s.id === h.get("s"))) state.sid = h.get("s");
+  }
+  function writeHash() {
+    const h = new URLSearchParams({ s: state.sid, c: String(state.c), set: state.set });
+    history.replaceState(null, "", `#${h}`);
+  }
+
+  // --- policy card ----------------------------------------------------------------------
+  function renderPolicy() {
+    $("#cost").value = state.c;
+    $("#cost-val").textContent = fmtC(state.c);
+    const t = costTable(state.c);
+    $("#cost-body").innerHTML = LANES.map((a) => `<tr><th scope="row">${a}</th>${LANES.map((truth) =>
+      `<td class="num${a === "mention" && truth === "quiet" ? " live" : ""}">${t[a][truth]}</td>`).join("")}</tr>`).join("");
+  }
+
+  // --- scores ---------------------------------------------------------------------------
+  function renderScores() {
+    const scens = inSet(state.set);
+    const cost = costTable(state.c);
+    for (const b of document.querySelectorAll(".seg button")) b.setAttribute("aria-pressed", b.dataset.set === state.set);
+    const scored = score(scens, GATES[3].act, cost).total;
+    $("#res-sub").textContent = `${SETS[state.set][0].toUpperCase()}${SETS[state.set].slice(1)}: ` +
+      `${scens.length * 8} memory decisions, ${scored} of them with a hand label (the rest could go either way).`;
+    $("#score-body").innerHTML = GATES.map((g) => {
+      const n = score(scens, g.act, cost);
+      return `<tr class="${g.id === "tact" ? "live" : ""}"><td>${esc(g.name(fmtC(state.c)))}</td>
+        <td class="num">${n.right}/${n.total} <span class="pct">${pct(n.right, n.total)}</span></td>
+        <td class="num">${n.bad}/${n.badN}</td><td class="num">${n.flip}/${n.flipN}</td>
+        <td class="num">${n.keep}/${n.keepN}</td></tr>`;
+    }).join("");
+  }
+
+  // --- trade-off charts -----------------------------------------------------------------
+  function chart(fig, { values, ref, refLabel, fmt, domain, ticks, label }) {
+    const W = 520, H = 230, m = { l: 46, r: 16, t: 18, b: 40 };
+    const x = (c) => m.l + (c / 6) * (W - m.l - m.r);
+    const y = (v) => H - m.b - ((v - domain[0]) / (domain[1] - domain[0])) * (H - m.t - m.b);
+    const i = STEPS.indexOf(state.c);
+    let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}">`;
+    for (const t of ticks) {
+      s += `<line class="grid" x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}"/>`;
+      s += `<text class="tick" x="${m.l - 8}" y="${y(t)}" text-anchor="end" dominant-baseline="middle">${fmt(t)}</text>`;
+    }
+    s += `<line class="axis" x1="${m.l}" x2="${W - m.r}" y1="${H - m.b}" y2="${H - m.b}"/>`;
+    for (let c = 0; c <= 6; c++) {
+      s += `<text class="tick${c === SHIPPED ? " strong" : ""}" x="${x(c)}" y="${H - m.b + 17}" text-anchor="middle">${c}</text>`;
+    }
+    s += `<text class="tick" x="${(m.l + W - m.r) / 2}" y="${H - 4}" text-anchor="middle">cost of saying something painful (3 = shipped)</text>`;
+    if (ref !== null) {
+      s += `<line class="ref" x1="${m.l}" x2="${W - m.r}" y1="${y(ref)}" y2="${y(ref)}"/>`;
+      s += `<text class="ref-label" x="${W - m.r}" y="${y(ref) - 6}" text-anchor="end">${esc(refLabel)}</text>`;
+    }
+    s += `<path class="series" d="${values.map((v, k) => `${k ? "L" : "M"}${x(STEPS[k]).toFixed(1)},${y(v).toFixed(1)}`).join("")}"/>`;
+    s += `<line class="cursor" x1="${x(state.c)}" x2="${x(state.c)}" y1="${m.t}" y2="${H - m.b}"/>`;
+    s += `<circle class="dot" cx="${x(state.c)}" cy="${y(values[i])}" r="5"/>`;
+    const right = state.c > 4.5;
+    s += `<text class="val" x="${x(state.c) + (right ? -10 : 10)}" y="${y(values[i]) - 10}" text-anchor="${right ? "end" : "start"}">Tact ${fmt(values[i])}</text>`;
+    s += `<line class="hover-line" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" visibility="hidden"/>`;
+    s += `<rect class="hit" x="${m.l - 8}" y="${m.t}" width="${W - m.l - m.r + 16}" height="${H - m.t - m.b}"/>`;
+    s += "</svg>";
+    fig.querySelector("svg")?.remove();
+    fig.insertAdjacentHTML("beforeend", s);
+    const svg = fig.querySelector("svg"), tip = fig.querySelector(".tip"), line = svg.querySelector(".hover-line");
+    const nearest = (evt) => {
+      const pt = svg.createSVGPoint(); pt.x = evt.clientX; pt.y = evt.clientY;
+      const local = pt.matrixTransform(svg.getScreenCTM().inverse());
+      const c = Math.min(6, Math.max(0, Math.round(((local.x - m.l) / (W - m.l - m.r)) * 6 * 4) / 4));
+      return c;
+    };
+    const hit = svg.querySelector(".hit");
+    hit.addEventListener("pointermove", (evt) => {
+      const c = nearest(evt), k = STEPS.indexOf(c);
+      line.setAttribute("x1", x(c)); line.setAttribute("x2", x(c)); line.setAttribute("visibility", "visible");
+      const box = svg.getBoundingClientRect(), scale = box.width / W;
+      tip.style.left = `${x(c) * scale}px`;
+      tip.style.top = `${y(values[k]) * scale + fig.querySelector("figcaption").offsetHeight + 6}px`;
+      tip.innerHTML = `cost ${fmtC(c)}: <b>${fmt(values[k])}</b>`;
+      tip.style.display = "block";
+    });
+    hit.addEventListener("pointerleave", () => { tip.style.display = "none"; line.setAttribute("visibility", "hidden"); });
+    hit.addEventListener("click", (evt) => { state.c = nearest(evt); update(); });
+  }
+
+  function renderCharts() {
+    const scens = inSet(state.set);
+    const tact = GATES[0].act, llm = GATES[2].act;
+    const runs = STEPS.map((c) => score(scens, tact, costTable(c)));
+    const base = score(scens, llm, null);
+    const acc = runs.map((n) => (100 * n.right) / n.total);
+    const accRef = (100 * base.right) / base.total;
+    const lo = Math.max(0, Math.floor((Math.min(...acc, accRef) - 5) / 10) * 10);
+    chart($("#chart-acc"), {
+      values: acc, ref: accRef, refLabel: `LLM gate ${Math.round(accRef)}%`, fmt: (v) => `${Math.round(v)}%`,
+      domain: [lo, 100], ticks: Array.from({ length: (100 - lo) / 10 + 1 }, (_, k) => lo + k * 10),
+      label: `Right decisions for Tact at each cost; ${Math.round(acc[STEPS.indexOf(state.c)])}% at ${state.c}`,
+    });
+    const leaks = runs.map((n) => n.bad);
+    const top = Math.max(4, Math.ceil(Math.max(...leaks, base.bad) / 4) * 4);
+    chart($("#chart-leak"), {
+      values: leaks, ref: base.bad, refLabel: `LLM gate ${base.bad}`, fmt: (v) => String(Math.round(v)),
+      domain: [0, top], ticks: Array.from({ length: 5 }, (_, k) => (k * top) / 4),
+      label: `Sensitive facts Tact lets through at each cost; ${leaks[STEPS.indexOf(state.c)]} at ${state.c}`,
+    });
+  }
+
+  // --- conversation list and detail -----------------------------------------------------
+  function flags(s) {
+    const out = [];
+    if (s.flip) out.push("the user raises a painful subject");
+    if (s.history.length) out.push("multi-turn");
+    if (s.set === "original" && s.dev) out.push("used for tuning");
+    return out.join(" · ");
+  }
+  function renderList() {
+    const groups = state.set === "all" ? ["original", "fresh"] : [state.set];
+    const title = { original: "34 original conversations", fresh: "16 fresh conversations (written after the freeze)" };
+    $("#list").innerHTML = groups.map((g) => `<h3>${title[g]}</h3>` + inSet(g).map((s) =>
+      `<button class="scen" type="button" data-sid="${s.id}" aria-current="${s.id === state.sid}">
+        <span class="sid">${s.id}</span><span class="msg">${esc(s.message)}</span>
+        ${flags(s) ? `<span class="flags">${flags(s)}</span>` : ""}</button>`).join("")).join("");
+  }
+
+  function highlight(text, mids) {
+    // The same whole-word matching as the eval's keyword check; a trailing * matches any ending.
+    let html = esc(text).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    const words = new Set(mids.flatMap((m) => D.sensitive[m] || []));
+    for (const w of words) {
+      const stem = w.replace(/\*$/, "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const tail = w.endsWith("*") ? "\\w*" : "(?!\\w)";
+      html = html.replace(new RegExp(`(?<!\\w)(${stem}${tail})`, "gi"), "<mark>$1</mark>");
+    }
+    return html.replace(/\n/g, "<br>");
+  }
+
+  function renderDetail() {
+    const s = D.scenarios.find((x) => x.id === state.sid);
+    const cost = costTable(state.c);
+    const rows = s.candidates.map((m) => ({ m, ...decide(s.p[m], cost), gold: s.labels[m], llm: s.llm[m] }));
+    rows.sort((a, b) => LANES.indexOf(a.action) - LANES.indexOf(b.action) || b.P[b.action] - a.P[a.action]);
+    const convo = [...s.history, ["user", s.message]].map(([role, text]) =>
+      `<div class="bubble ${role}"><span class="who">${role === "user" ? "Arjun" : "assistant"}</span>${esc(text)}</div>`).join("");
+    const mems = rows.map((r) => {
+      const verdict = r.gold === null ? `<span class="verdict" style="color:var(--muted)">not scored: either is fine</span>`
+        : r.action === r.gold ? `<span class="verdict ok">✓ matches the hand label</span>`
+        : `<span class="verdict no">✗ hand label: ${r.gold}</span>`;
+      const leak = r.m in D.sensitive && r.gold !== "mention" && r.action === "mention"
+        ? ` · <span class="warn">⚠ says something sensitive</span>` : "";
+      const why = r.action === r.top ? ""
+        : `<div class="why">The decider leaned ${r.top} (${Math.round(r.P[r.top] * 100)}%), but ${r.action} has the lower expected cost (${r.E[r.action].toFixed(2)} vs ${r.E[r.top].toFixed(2)}).</div>`;
+      return `<div class="mem">
+        <div class="mem-head"><span class="act"><i class="dot ${r.action}"></i>Tact ${DOES[r.action]}</span>${verdict}</div>
+        <div class="mem-text">${esc(D.memories[r.m])}</div>
+        <div class="bar" role="img" aria-label="mention ${Math.round(r.P.mention * 100)}%, quiet ${Math.round(r.P.quiet * 100)}%, skip ${Math.round(r.P.skip * 100)}%">
+          ${LANES.map((l) => `<span class="${l}" style="flex:${r.P[l]} 1 0" title="${l} ${Math.round(r.P[l] * 100)}%"></span>`).join("")}</div>
+        <div class="probs">mention ${Math.round(r.P.mention * 100)}% · quiet ${Math.round(r.P.quiet * 100)}% · skip ${Math.round(r.P.skip * 100)}% · LLM gate: ${r.llm}${leak}</div>
+        ${why}</div>`;
+    }).join("");
+    let replies = "";
+    if (s.replies) {
+      const cards = [["all", "All 30 memories in the prompt"], ["rag", "Top-8 retrieval"], ["tact", "Tact"]].map(([k, title]) => {
+        const r = s.replies[k];
+        const status = r.leaks.length
+          ? `<span class="warn">⚠ mentions ${r.leaks.map((m) => esc(D.memories[m].split(/[,.;]/)[0])).join("; ")}</span>`
+          : `<span class="ok">✓ nothing sensitive</span>`;
+        return `<div class="reply ${k}"><h3>${title}</h3><div class="meta">${status} · ${r.tokens} input tokens</div>
+          <p>${highlight(r.text, r.leaks)}</p></div>`;
+      }).join("");
+      replies = `<h3 style="margin-top:18px">What the chat model replied</h3>
+        <p class="note" style="margin:0 0 4px">Written by Qwen2.5 3B at the shipped setting (3), so they don't change with the slider.</p>
+        <div class="replies">${cards}</div>`;
+    }
+    $("#detail").innerHTML = `<h3>${s.id} · ${s.set === "fresh" ? "fresh conversation" : "original conversation"}${flags(s) ? ` · ${flags(s)}` : ""}</h3>
+      <div class="convo">${convo}</div>
+      <h3>The 8 most similar memories, at cost ${fmtC(state.c)}</h3>${mems}${replies}`;
+  }
+
+  function update(scrollList = false) {
+    const list = $("#list"), keep = list.scrollTop;
+    renderPolicy(); renderScores(); renderCharts(); renderList(); renderDetail(); writeHash();
+    list.scrollTop = keep;
+    const item = list.querySelector(`.scen[data-sid="${state.sid}"]`);
+    if (scrollList && item) list.scrollTop = item.offsetTop - list.clientHeight / 3;  // the list only, not the page
+  }
+
+  $("#cost").addEventListener("input", (e) => { state.c = parseFloat(e.target.value); update(); });
+  for (const b of document.querySelectorAll(".seg button")) b.addEventListener("click", () => {
+    state.set = b.dataset.set;
+    if (!inSet(state.set).some((s) => s.id === state.sid)) state.sid = inSet(state.set)[0].id;
+    update();
+  });
+  $("#list").addEventListener("click", (e) => {
+    const b = e.target.closest(".scen"); if (!b) return;
+    state.sid = b.dataset.sid; update();
+  });
+  for (const b of document.querySelectorAll(".try .chip")) b.addEventListener("click", () => {
+    state.c = parseFloat(b.dataset.c); state.sid = b.dataset.s;
+    if (!inSet(state.set).some((s) => s.id === state.sid)) state.set = "all";
+    update(true);
+    document.querySelector("#exp-h").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  readHash();
+  update(true);
+})();
+</script>
+</body>
+</html>
