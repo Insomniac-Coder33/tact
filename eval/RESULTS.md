@@ -37,6 +37,8 @@ before any model saw them: 3 where the user raises a sensitive subject, 2 multi-
 | llm_gate | 73/105 (70%) | 3/24 | 4/4 | 13/19 | 5526 ms |
 | **tact** | **92/105 (88%)** | **0/24** | 3/4 | 15/19 | 11209 ms |
 
+95% confidence intervals (Wilson) for right decisions: Tact 80%–93%, LLM gate 60%–78%, tags 14%–30%.
+
 What the LLM gate let through: asked for job-interview tips, the therapist for anxiety; asked
 what to gift his dad, the heart surgery; and when Arjun said he felt anxious like after losing
 his job, his late grandmother. Tact's one miss on a user-raised subject was the job loss in that
@@ -44,6 +46,40 @@ same message: it chose *quiet* (P(mention) 0.30), so the reply could use it but 
 
 Run: `eval/results/run-20261022-001433.json`, made with
 `uv run python eval/run_eval.py --scenarios eval/fresh_scenarios.json --gates-only --systems tags,llm_gate,tact`.
+
+## The cost of saying something painful: which mistakes, not how many
+
+The saved decider answers, re-scored with `COST["mention"]["quiet"]` from 0 to 6 (3 is shipped), on all 50 conversations. No model calls.
+
+| cost | right decisions | sensitive facts let through ↓ | user-raised subjects mentioned ↑ | useful facts kept ↑ |
+|---|---|---|---|---|
+| 0 | 305/365 (84%) | 10/84 | 10/11 | 57/71 |
+| 0.5 | 307/365 (84%) | 6/84 | 10/11 | 55/71 |
+| 1 | 307/365 (84%) | 5/84 | 10/11 | 52/71 |
+| 1.5 | 305/365 (84%) | 4/84 | 9/11 | 49/71 |
+| 2 | 309/365 (85%) | 4/84 | 9/11 | 49/71 |
+| 2.5 | 305/365 (84%) | 4/84 | 8/11 | 47/71 |
+| 2.75 | 306/365 (84%) | 2/84 | 7/11 | 47/71 |
+| **3** | 307/365 (84%) | 0/84 | 7/11 | 47/71 |
+| 3.5 | 305/365 (84%) | 0/84 | 4/11 | 47/71 |
+| 4 | 302/365 (83%) | 0/84 | 3/11 | 45/71 |
+| 5 | 300/365 (82%) | 0/84 | 2/11 | 45/71 |
+| 6 | 294/365 (81%) | 0/84 | 0/11 | 45/71 |
+
+Accuracy stays within 80–85%; the cost moves the kind of mistake. 3 was chosen on the 10-scenario dev split (`eval/tune.py`); on all 50 it is the lowest value in this sweep that lets no sensitive fact through.
+
+### The cost table vs. the decider's top label
+
+| scenarios | gate | right decisions (95% CI) | sensitive facts let through ↓ | user-raised subjects mentioned ↑ | useful facts kept ↑ |
+|---|---|---|---|---|---|
+| 34 original | top label | 214/260 (82%, 77%–86%) | 0/60 (0%–6%) | 5/7 | 23/52 |
+| 34 original | cost table (3) | 215/260 (83%, 78%–87%) | 0/60 (0%–6%) | 4/7 | 32/52 |
+| 16 fresh | top label | 87/105 (83%, 75%–89%) | 1/24 (1%–20%) | 2/4 | 10/19 |
+| 16 fresh | cost table (3) | 92/105 (88%, 80%–93%) | 0/24 (0%–14%) | 3/4 | 15/19 |
+| all 50 | top label | 301/365 (82%, 78%–86%) | 1/84 (0%–6%) | 7/11 | 33/71 |
+| all 50 | cost table (3) | 307/365 (84%, 80%–88%) | 0/84 (0%–4%) | 7/11 | 47/71 |
+
+Confidence intervals are Wilson 95% intervals. Made by `eval/cost_sweep.py`.
 
 ## End-to-end replies
 
@@ -67,6 +103,13 @@ Run: `eval/results/run-20261022-001433.json`, made with
 - **rag**, s23 "Any tips to sleep better? I've been stressed.": m16
 
 Gate tables: run `eval/results/run-20261021-202009.json`. Replies: run `eval/results/run-20261021-205552.json`, rescored offline with whole-word keyword matching, using the system prompt before its last one-line clarification.
+
+## Repeatability
+
+The gate run and the replies run asked the decider the same 272 questions separately. It gave
+identical probabilities on all 272 (largest difference 0.000). The LLM gate, at temperature 0,
+changed 1 of its 272 labels between the same two runs (s32, m04: skip, then quiet). This is also
+why `eval/replay_eval.py` can replay the saved answers instead of calling the decider again.
 
 ## Calibration: can you trust the decider's probabilities?
 
