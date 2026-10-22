@@ -103,6 +103,17 @@ def escalate(rows: list[dict], model: str, bar: float) -> str:
     return name
 
 
+def price_self_hosted(gate_rows: dict, models: list[str]) -> None:
+    """Self-hosted gates have no token price: charge them the instance's time. That is always
+    the decider, and the LLM gates too when they ran on Ollama."""
+    hosted = ["tact"] + ([] if bedrock.PROVIDER == "bedrock" else [name_of(m) for m in models])
+    for rows in gate_rows.values():
+        for row in rows:
+            for name in hosted:
+                rec = row["systems"][name] = dict(row["systems"][name])
+                rec["gate_cost_usd"] = INSTANCE[1] / 3600 * rec["gate_latency_ms"] / 1000
+
+
 def run_gates(data: dict, models: list[str], memories: dict[str, dict]) -> dict[str, list[dict]]:
     """Each model labels every scenario's shortlist. Rows follow run_eval's format, with the
     saved tags, Qwen and decider gates alongside."""
@@ -222,7 +233,9 @@ def report(args, data: dict, gate_rows: dict, reply_rows: dict, inputs: list[Pat
     for model in models:
         ms = statistics.median(r["systems"][model]["gate_latency_ms"] for r in rows)
         usd = statistics.mean(r["systems"][model]["gate_cost_usd"] for r in rows)
-        lines.append(f"| {model} | {ms / 1000:.1f} s | {per_thousand(usd)} | tokens at list price |")
+        how = ("tokens at list price" if bedrock.PROVIDER == "bedrock"
+               else "the same instance's price × the measured time")
+        lines.append(f"| {model} | {ms / 1000:.1f} s | {per_thousand(usd)} | {how} |")
     lines += ["", "The decider's published speed on a GPU is about 115 ms per question; it ran on a CPU "
               "here (no GPU quota), and that is not measured.", ""]
 
@@ -262,7 +275,14 @@ def main() -> int:
     ap.add_argument("--parts", default="gates,replies")
     ap.add_argument("--report", default=f"RESULTS-{bedrock.PROVIDER}.md", help="file name under eval/")
     ap.add_argument("--dry-run", action="store_true", help="fake every model call; write nothing")
+    ap.add_argument("--rescore", metavar="RAW_JSON", help="rebuild the report from a saved run, no calls")
     args = ap.parse_args()
+    saved_run = json.loads(Path(args.rescore).read_text(encoding="utf-8")) if args.rescore else None
+    if saved_run:
+        args.models, args.chat_model = saved_run["models"], saved_run["chat_model"]
+        args.judge_model = saved_run["judge_model"]
+        args.models = ",".join(args.models)
+        args.parts = "gates,replies" if saved_run["replies"] else "gates"
     args.models = [m for m in args.models.split(",") if m]
     parts = args.parts.split(",")
     if "replies" in parts and args.chat_model not in args.models:
@@ -284,11 +304,23 @@ def main() -> int:
         for row in saved.values():
             saved_tact(row["systems"]["tact"], texts)
 
-    gate_rows = run_gates(data, args.models, {m["id"]: m for m in store.all()})
-    reply_rows = (run_replies(data, gate_rows, args.chat_model, args.judge_model or None, store, texts)
-                  if "replies" in parts else {})
+    if saved_run:
+        gate_rows, reply_rows = saved_run["gates"], saved_run["replies"]
+        for rows in gate_rows.values():  # drop the escalation gates the report adds back
+            for row in rows:
+                row["systems"] = {k: v for k, v in row["systems"].items() if not k.startswith("tact, below")}
+    else:
+        gate_rows = run_gates(data, args.models, {m["id"]: m for m in store.all()})
+        reply_rows = (run_replies(data, gate_rows, args.chat_model, args.judge_model or None, store, texts)
+                      if "replies" in parts else {})
+    price_self_hosted(gate_rows, args.models)
     text = report(args, data, gate_rows, reply_rows, inputs)
     if args.dry_run:
+        print("\n" + text)
+        return 0
+    if saved_run:
+        (ROOT / "eval" / args.report).write_text(
+            text + f"\nRaw answers: `eval/results/{Path(args.rescore).name}`.\n", encoding="utf-8")
         print("\n" + text)
         return 0
     stamp = time.strftime("%Y%m%d-%H%M%S")
