@@ -2,72 +2,96 @@
 
 *Tags: #strands-decider-2b #context-memory*
 
+![Tact: an assistant that remembers everything, and knows when to keep quiet](img/cover.png)
+
+**At a glance**
+
+- **The decision:** before every reply, for each remembered fact that might matter, Strands
+  Decider 2B decides whether the agent may **mention** it, should use it **quietly** (let it
+  shape the reply, never say it), or **skip** it. A second decision runs when the user shares
+  news: does it make an old memory **outdated**?
+- **Decision pattern:** context and memory. **Decision model:** Strands Decider 2B on an Amazon
+  EC2 instance. **Generative model:** built for Amazon Bedrock (Nova Lite); see the note below on
+  what ran during the hackathon.
+- **Results:** on 16 conversations written *after* the configuration was frozen, Tact made **88%**
+  of its decisions right, against 70% for an LLM asked the same question and 21% for static
+  "sensitive" tags. It let **0 of 24** sensitive facts through (the LLM: 3). Across all 50 test
+  conversations: **0 of 84**, against 8.
+- **Try it without installing anything:** [the playground](https://insomniac-coder33.github.io/tact/)
+  replays the decider's real answers and lets you change the policy. **Code:**
+  https://github.com/Insomniac-Coder33/tact (Apache-2.0). **Demo video:** `[[VIDEO_URL]]`
+
 ## The problem: assistants that remember too well
 
-Ask an AI assistant with long-term memory for sightseeing tips in Paris. It looks through what it
-knows about you, finds the memory that matches "Paris" most closely, and helpfully writes:
+Ask an AI assistant with long-term memory for sightseeing tips in Paris. It finds the memory that
+matches "Paris" most closely and helpfully writes:
 
 > "Since your last trip to Paris ended with the breakup with Meera, maybe try a different
 > neighbourhood this time..."
 
-The retrieval worked as designed. It found the most *similar* memory, but that memory was not an
-*appropriate* one. People with good memories don't say everything they remember. A friend knows
-not to suggest a dog park the month your dog died, and doesn't mention why.
+Retrieval worked as designed. It found the most *similar* memory, not an *appropriate* one. People
+with good memories don't say everything they remember. A friend knows not to suggest a dog park the
+month your dog died, and doesn't explain why.
 
-Memory-enabled agents usually get one of two jobs wrong:
-
-1. **Too much context.** Everything remembered goes into the prompt on every turn. That costs
-   tokens, and the model starts mentioning irrelevant things.
-2. **No tact.** Similarity search can't tell "relevant and fine to say" from "relevant and
-   painful to say".
-
-## "Just tag the sensitive memories" doesn't work
+## Why not just tag the painful memories?
 
 The obvious fix is to mark painful memories as sensitive when they're saved, and never say them.
 But tact depends on the conversation:
 
-- *"I'm thinking of getting a puppy. Thoughts?"* The dog that died last month should shape the
-  answer (maybe suggest waiting a little), but saying it out loud would hurt.
-- *"It's been a month since Biscuit died and I still can't walk past the lake. How do I cope?"*
-  Now **not** acknowledging Biscuit would be cold. The user opened the door.
+![The same memory gets two different decisions in two conversations](img/two_conversations.png)
 
-Same memory, two conversations, two correct answers. A static tag gets one of them wrong every
-time. The decision has to be made per message, and it has to be cheap enough to make on every turn.
+*"I'm thinking of getting a puppy"* should be shaped by the dog that died last month (maybe wait a
+little), but saying it would hurt. *"Today would have been Biscuit's birthday. I really miss him"*
+is the opposite: now **not** acknowledging Biscuit would be cold. Same memory, two conversations,
+two right answers. A static tag gets one of them wrong every time, so the decision has to be made
+per message, and it has to be cheap enough to make on every turn.
 
-**Tact** is a Strands agent that makes that decision. Before every reply, **Strands Decider 2B**
-judges each candidate memory: **mention** it, use it **quietly**, or **skip** it.
+## Isn't this just a relevance filter?
+
+Most memory gates ask one question: *is this fact relevant to the message?* That has two outcomes,
+in or out. But the dead dog **is** relevant
+to "should I get a puppy?". A relevance filter has to either put it in the prompt, where the model
+may well bring it up, or drop it, so the reply can't take it into account.
+
+Tact's middle lane is the point: **relevant, but not sayable**. A quiet fact still reaches the
+model, under a heading that says *sensitive background: let it shape your answer, never mention
+it*. It's also the hardest call, and I'll show below how rarely the decider makes it on its own.
+
+## Why not just tell the model to be tactful?
+
+Tact's system prompt already says *"Use what you remember only when it genuinely helps, and never
+make the user feel watched."* The baseline agent that gets every memory had the same prompt. Asked
+for a sweet to bring to his sister's wedding, it still suggested his late grandmother's rasgulla,
+"a reminder of her".
+
+A general instruction leaves the model to work out, in the middle of writing, which of 30 facts are
+painful *right now*. Tact works that out first, one fact at a time, and hands the model a short list
+with the sensitive ones marked.
 
 ## How it works
 
-```
-user message
-  │
-  ├─ 1. Embeddings shortlist the 8 most similar memories
-  │
-  ├─ 2. Strands Decider 2B, ONE batched request:
-  │       8 × choice "mention / quiet / skip?"
-  │       + noul "worth remembering?" + noul "asking me to drop a subject?" + choice "tone?"
-  │
-  ├─ 3. Expected-cost policy in plain Python: picks mention / quiet / skip per memory
-  │
-  └─ 4. The chat model replies, seeing only what the gate allowed
-```
+![Tact's read path and write path](img/architecture.png)
 
-Retrieval still finds the candidates, because it's fast and good at "what could be related". The
-decider then makes the judgment retrieval can't: given this conversation, should this fact be used,
-and can it be said out loud?
+1. **Shortlist.** Embeddings pick the 8 stored memories most similar to the message. Similar is
+   not the same as appropriate; that's the next step's job.
+2. **Decide.** Strands Decider 2B gets **one** request: a three-way question for each of the 8
+   memories, plus three yes/no and choice questions that ride along (more below). It reads the
+   conversation once, and each extra question only adds a few tokens.
+3. **Policy.** Plain Python turns the decider's probabilities into an action with a cost table.
+4. **Reply.** The chat model writes the answer, seeing only what the gate allowed.
 
 Everything runs on AWS. Decider 2B is served on an EC2 instance. Tact was built for Amazon Bedrock
 (Nova Lite for replies, Titan Text Embeddings V2 for the shortlist), but my brand-new AWS account
 couldn't call Bedrock models during the hackathon. So the replies and embeddings in this article
 come from Qwen2.5 3B and nomic-embed-text, served by Ollama on the same EC2 instance as the
-decider. One setting (`TACT_PROVIDER=bedrock|ollama`) switches between the two; the gate doesn't
-change.
+decider. One setting (`echo bedrock > .cache/provider`) switches between the two; the gate doesn't
+change. The repo includes a written plan for re-running every LLM part on Bedrock (Nova Lite and
+Nova Pro as baselines), committed before any Bedrock call.
 
 ## The decision
 
-Each memory becomes one typed `choice` question. All of them go to the decider in a single request,
-so the conversation is read once and each memory only adds its own few tokens.
+Each memory becomes one typed `choice` question, and all of them go to the decider in a single
+request:
 
 ```python
 {
@@ -85,24 +109,15 @@ so the conversation is read once and each memory only adds its own few tokens.
 }
 ```
 
-I tried three wordings on a 10-scenario development split and kept the best one. The
-evaluation below only scores the other 24 scenarios separately, so the wording wasn't tuned on them.
+I tried several wordings on a 10-conversation development split and kept the best. I also tried
+two narrow yes/no questions per memory ("would this fact change a thoughtful reply?", "would saying
+it be unwelcome, given the conversation so far?"). It looked cleaner on paper and lost: 74% against
+83%, one sensitive fact let through, and almost twice the decider time. Both designs are in the repo.
 
-The middle option is the point of the project. A *quiet* memory still reaches the LLM, under a
-heading that says "sensitive background, NEVER mention". The Paris reply can then avoid
-romantic-couple suggestions without saying why.
-
-I also tried a second design: two narrow yes/no questions per memory, *"would this fact change a
-thoughtful reply?"* and *"would saying it out loud be unwelcome, given the conversation so far?"*.
-They combine as P(mention) = P(helps) × (1 − P(unwelcome)), P(quiet) = P(helps) × P(unwelcome) and
-P(skip) = 1 − P(helps). It looked cleaner on paper, but it lost: 74% accuracy against 83% for the
-single 3-way question, one sensitive fact let through, and twice the decider time, because every
-memory needs two questions. The repo keeps both designs, and the demo app can switch between them.
-
-## The policy: expected cost, not argmax
+## The policy: expected cost, not the top label
 
 The decider returns probabilities, not just a label, and Tact uses all of them. Mistakes don't
-cost the same. Saying something painful is far worse than leaving out a useful detail. So the
+cost the same: saying something painful is far worse than leaving out a useful detail. So the
 gate picks the action with the lowest **expected cost**:
 
 | action ↓ / truth → | mention | quiet | skip |
@@ -120,16 +135,31 @@ def decide(self, probabilities, locked=False):
     return min(expected, key=expected.get)
 ```
 
-A fact that's 60% "mention" but 25% "quiet" ends up **quiet**: the model leaned towards
-saying it, but not confidently enough to risk it. This is where a decision model that returns
-probabilities pays off over an LLM that just outputs a label. Without probabilities there's
-nothing to weigh. And the trade-off lives in a table your team can argue about and change,
-not in a prompt.
+In the puppy conversation above, the decider's top label for Biscuit was *skip* (60%). But 21% on
+*quiet* and 19% on *mention* make the fact worth carrying, so the policy uses it quietly. Without
+probabilities there's nothing to weigh, and the trade-off lives in a table your team can argue
+about, not in a prompt.
 
-The 3 wasn't a guess. I started at 5, and on the development split Tact stopped acknowledging
-subjects the user had raised (0 of 3) and mentioned only 5 of 18 helpful facts. `eval/tune.py`
-replays the saved decider answers with costs from 1 to 5. At 1, 2 of the 20 sensitive facts got
-through; 3 was the lowest value that let none through, and it kept 2 of the 3 user-raised subjects.
+**The cost decides which mistakes the agent makes, not how many.** Re-scoring the same recorded
+answers across all 50 conversations:
+
+| cost of saying something painful | right decisions | sensitive facts said ↓ | subjects the user raised, acknowledged ↑ |
+|---|---|---|---|
+| 0 | 84% | 10 / 84 | 10 / 11 |
+| 1 | 84% | 5 / 84 | 10 / 11 |
+| 2 | 85% | 4 / 84 | 9 / 11 |
+| **3 (shipped)** | **84%** | **0 / 84** | **7 / 11** |
+| 6 | 81% | 0 / 84 | 0 / 11 |
+
+Accuracy hardly moves. What moves is the kind of failure: a cheap painful mention makes the agent
+blurt, an expensive one makes it cold. 3 was chosen on the 10-conversation development split; on
+all 50 it's the lowest value, in steps of 0.25, that says nothing painful. You can drag this dial yourself in the
+[playground](https://insomniac-coder33.github.io/tact/#s=s12&c=0.5&set=all): at 0.5, Tact brings up
+the dead dog when asked about a puppy.
+
+The table also beats the decider's own top label. On the fresh conversations, taking the top label
+as-is gets 83% right, keeps 10 of 19 useful facts and lets one sensitive fact through; the cost
+table gets 88%, keeps 15 and lets none through.
 
 ## Wiring it into a Strands agent
 
@@ -147,99 +177,73 @@ class MemoryGateIntervention(InterventionHandler):
 agent = Agent(model=model, interventions=[MemoryGateIntervention(gate, store)])
 ```
 
-Two rules cover every failure. When Tact is unsure about **saying** something, it says less.
-When it's unsure about **changing** what it knows, it changes nothing. So if the decider is
-unreachable, `safe_run` returns no memories: the agent still answers, it just doesn't remember
-anything this turn, and it never falls back to a stale or ungated memory block. If the "which
-memory did they mean?" follow-up fails, nothing gets locked. The pattern's README has the full
-table, one test per row.
+Two rules cover every failure. When Tact is unsure about **saying** something, it says less. When
+it's unsure about **changing** what it knows, it changes nothing. If the decider is unreachable,
+the agent still answers, but with no memories that turn, never a stale or ungated block. The
+pattern's README has the full table, with one test per row.
 
 ### Three more decisions, in the same request
 
-Once the conversation is encoded, extra questions are nearly free, so Tact asks three more in the
-same call:
+Once the conversation is encoded, extra questions are nearly free:
 
 - **Remember?** (`noul`) Is the user sharing news about themselves, rather than asking for
-  something? Only when the decider is at least 70% sure does Tact spend an LLM call writing it
-  down.
-- **Forget?** (`noul`) *"Please don't bring up Meera again."* A short follow-up call asks, per
-  memory, "is this the one they mean?", and locks the match. A locked memory can still keep
-  answers considerate, but the policy will never let it be said again.
+  something? Only when the decider is at least 70% sure does Tact spend an LLM call writing it down.
+- **Forget?** (`noul`) *"Please don't bring up Meera again."* A short follow-up asks which memory
+  they mean and locks it: it can still keep answers considerate, but it's never said again.
 - **Tone?** (`choice`: gentle / upbeat / practical) Adjusts how the reply should feel.
 
-### The other half of memory: what to forget on its own
+### The other half of memory: noticing what's out of date
 
 Tact knows "Arjun lives in Pune". Then Arjun says *"Big news: I just moved to Bangalore for a new
-job!"* An agent that only appends now holds both facts, and next Saturday it may well suggest a
-walk in Pune. Saying the right thing also means not saying *old* things.
+job!"* An agent that only appends now holds both, and next Saturday it may suggest a walk in Pune.
 
-So writing gets its own decision. When the remember question fires, a second request asks, for
+So writing gets its own decision. When the remember question fires, one more request asks, for
 each of the 5 closest stored memories: does this message make it **outdated**, **repeat** it, or
-leave it **unaffected**? Deleting a true memory and keeping a stale one are both mistakes, so the
-policy has three bands. At P(outdated) ≥ 0.6 the memory is **retired**: it leaves retrieval but
-stays in history. Between 0.4 and 0.6 it's kept but **flagged**, and the LLM is told it *may be
-out of date*. Below that it's kept.
+leave it **unaffected**? Deleting a true memory and keeping a stale one are both mistakes, so there
+are three bands: at P(outdated) ≥ 0.6 the memory is **retired** (out of retrieval, kept in
+history); from 0.4 it's kept but **flagged**, and the model is told it *may be out of date*.
 
-The first live test taught me something. "I got a new job" pushed P(outdated) for *"was laid off in
-March 2025"* to 0.72, but a past event stays true when life moves on. Writing that into the option
-descriptions made every probability drift upwards and caused four wrong retirements. What worked
-was a separate yes/no question in the same request: *is this a past event that's over and done?*
-If so, the memory can be flagged but never retired.
-
-On 27 hand-labelled messages, the curator retired 9 of 17 outdated memories, flagged 5 more, and
-retired **none of the 60 that were still true**. Its blind spot is finished plans: *"I finally
-bought the Royal Enfield"* doesn't retire *"saving up to buy a Royal Enfield"*.
+The first live test retired *"was laid off in March 2025"* after *"I got a new job"*. But a past
+event stays true when life moves on. Writing that into the options made every probability drift and
+caused four wrong retirements. What worked was a separate yes/no question in the same request: *is
+this a past event that's over and done?* If so, the memory can be flagged but never retired. On 27
+hand-labelled messages, the curator retired 9 of 17 outdated memories, flagged 5 more, and retired
+**none of the 60 that were still true**.
 
 ## Does it work?
 
-I wrote 34 everyday requests over a fictional user with 30 memories. Some memories are useful,
-like allergies, budget and his sister's wedding. Some are painful, like a breakup, a dog that
-died, a layoff and a father's surgery. 10 scenarios are built specifically to break static tags:
-the user raises the painful subject themselves, or it only becomes sensitive two turns into a
-conversation. Each request has hand labels for which memories should be mentioned and which
-should stay quiet.
+I wrote 34 everyday requests over a fictional user, Arjun, with 30 memories: useful ones like his
+peanut allergy, budget and sister's wedding, and painful ones like a breakup, a dog that died, a
+layoff and his father's heart surgery. Ten conversations are built to break static tags: the user
+raises the painful subject themselves, or it only becomes sensitive two turns in. Every shortlisted
+memory has a hand label: mention, quiet or skip.
 
-First, the gate decisions themselves, scored against the hand labels. Every gate judges the same
-8 shortlisted memories per request:
+Those 34 were written by the person who built the gate, alongside it. So I froze everything that
+affects a decision (git tag `eval-freeze-2026-10-22`), wrote **16 new conversations**, and
+committed their labels, with the file's hash, before any model saw them. Every gate judges the
+same 8 shortlisted memories:
 
-- **tags**: the static approach. Sensitive memories are tagged when stored and never mentioned.
-- **llm_gate**: the same 3-way question, asked of the chat LLM (Qwen2.5 3B) in one prompt.
-- **tact**: Decider 2B with the 3-way question and the cost table.
-- **tact_split**: Decider 2B with the two yes/no questions.
-
-| gate | 3-way accuracy | sensitive facts let through ↓ | user-raised sensitive facts mentioned ↑ | helpful facts kept ↑ |
+| gate, on the 16 fresh conversations | right decisions (95% CI) | sensitive facts let through ↓ | user-raised subjects mentioned ↑ | useful facts kept ↑ |
 |---|---|---|---|---|
-| tags | 23% | 0 / 60 | 0 / 7 | 52 / 52 |
-| llm_gate | 60% | 5 / 60 | 2 / 7 | 26 / 52 |
-| **tact** | **83%** | **0 / 60** | **4 / 7** | 32 / 52 |
-| tact_split | 74% | 1 / 60 | 0 / 7 | 29 / 52 |
+| static tags | 21% (14–30%) | 0 / 24 | 0 / 4 | 19 / 19 |
+| LLM gate: Qwen2.5 3B, same question | 70% (60–78%) | 3 / 24 | 4 / 4 | 13 / 19 |
+| **Tact** | **88% (80–93%)** | **0 / 24** | 3 / 4 | 15 / 19 |
 
-On the 24 scenarios that weren't used for tuning, Tact scores 85%, the LLM gate 61% and tags 19%.
+On the original 34: Tact 83%, the LLM gate 60%, tags 23%, and 85% vs 61% vs 19% on the 24
+conversations that weren't used for tuning. Across all 50, Tact let **0 of 84** sensitive facts
+through (95% CI 0–4%); the LLM gate let 8 through.
 
-Those 24 were still written by the person who built the gate, alongside it. So I froze
-everything that affects a decision (git tag `eval-freeze-2026-10-22`), wrote 16 new
-conversations, and committed their labels, with the file's hash, before any model saw them:
+The LLM gate's slips are exactly the kind this project is about. Asked for job-interview tips, it
+allowed Arjun's therapy for anxiety. Asked what to gift his dad, it allowed the heart surgery.
+Asked to suggest activities for his recovering dad, it allowed his layoff.
 
-| gate, on 16 fresh conversations | 3-way accuracy | sensitive facts let through ↓ | user-raised subjects mentioned ↑ | helpful facts kept ↑ |
-|---|---|---|---|---|
-| tags | 21% | 0 / 24 | 0 / 4 | 19 / 19 |
-| llm_gate | 70% | 3 / 24 | 4 / 4 | 13 / 19 |
-| **tact** | **88%** | **0 / 24** | 3 / 4 | 15 / 19 |
+Tags look safe, and they are, but they get three out of four decisions wrong: every helpful fact is
+"mentioned", relevant or not, and a painful subject can never be acknowledged, even when the user
+brings it up.
 
-The LLM gate's three slips are exactly the kind this project is about. Asked for job-interview
-tips, it allowed Arjun's therapist for anxiety. Asked what to gift his dad, it allowed the heart
-surgery. And when Arjun said he'd been anxious, like after losing his job, it allowed his late
-grandmother.
+**Then the replies.** Five agents answered all 34 requests with the same chat model:
 
-Tags look safe, and they are, but they get three out of four decisions wrong: every helpful fact
-is "mentioned", including the ones that have nothing to do with the question, and a sensitive
-fact can never be acknowledged, even when the user brings it up. The LLM gate did let painful
-facts through. Asked to suggest activities for Arjun's dad, who is recovering from surgery, it
-allowed mentioning Arjun's layoff. Asked about cooking for his dad, it allowed the dog that died.
-
-Then the replies. Five agents answered all 34 requests with the same chat model:
-
-| how the agent gets its memory | replies that said something sensitive ↓ | helpful facts used ↑ | avg input tokens per reply ↓ |
+| how the agent gets its memory | replies that said something sensitive ↓ | helpful facts used ↑ | input tokens per reply ↓ |
 |---|---|---|---|
 | all memories in the prompt | 3 / 34 | 30 / 70 | 540 |
 | top-8 retrieval (RAG) | 4 / 34 | 32 / 70 | 208 |
@@ -247,88 +251,74 @@ Then the replies. Five agents answered all 34 requests with the same chat model:
 | retrieval + LLM gate | 0 / 34 | 26 / 70 | 143 |
 | **Tact** | **0 / 34** | 32 / 70 | **114** |
 
-The leaks are exactly the ones the introduction warned about. Asked *"What should I do this
-Saturday morning?"*, the retrieval agent suggested taking Biscuit for a relaxing walk at the lake.
-Biscuit is the dog that died. Asked for a sweet to bring to his sister's wedding, the
-all-memories agent suggested his late grandmother's rasgulla, "a reminder of her".
-
-**The takeaway:** Tact never said anything painful, used as many helpful facts as plain
-retrieval, and sent the chat model 79% fewer input tokens than the all-memories agent, because
-it passes on only what the decider allowed. The LLM gate was also leak-free in the replies, but
-it threw away more helpful facts and made more wrong calls before the reply was even written.
+Asked *"What should I do this Saturday morning?"*, the retrieval agent suggested taking Biscuit for
+a relaxing walk at the lake. Tact never said anything painful, used as many helpful facts as plain
+retrieval, and sent the model **79% fewer input tokens** than the all-memories agent, because it
+passes on only what the decider allowed. Every reply is in the playground, side by side.
 
 ### Can you trust its confidence?
 
-A probability is only useful if it means something. Across the 260 labelled memory decisions,
-when the decider gave its top label 90% or more, it was right **97 times out of 97**. Between 80%
-and 90% it was right 87% of the time. Below 80%, though, it was close to a coin flip (50–59%),
-whatever it claimed. Its expected calibration error is 0.06.
+A probability is only useful if it means something. Across 260 labelled decisions, when the
+decider gave its top label 90% or more, it was right **97 times out of 97**. Between 80% and 90%,
+87%. Below 80%, close to a coin flip (50–59%). Its expected calibration error is 0.06.
 
 ![Strands Decider 2B: stated confidence vs. accuracy](img/calibration.png)
 
-That's a usable signal. 73% of decisions came with high confidence and were 93% right; the other
-27% are where mistakes live. So I tried the obvious next step: send just the uncertain decisions to
-the LLM gate. It didn't help (215 right on its own, 217 at best with the LLM), because the cases
-the decider finds hard are hard for the 3B LLM too. So for now the signal tells you which
-decisions deserve a second look, not who should make them. A bigger Bedrock model might change that.
+So the signal says which decisions deserve a second look. The demo shows a "close call" badge
+below 0.33 confidence. Handing just those to the 3B LLM didn't help (215 right alone, 217 at
+best), because the cases the decider finds hard are hard for that LLM too; a Bedrock model may do
+better, and that's in the plan.
 
-### What I learned about using Decider 2B
+It's also repeatable: two separate runs gave identical probabilities on all 272 decisions. The 3B
+LLM gate, at temperature 0, changed one of its 272 labels between the same two runs.
+
+## What I learned about using Decider 2B
 
 - **Batch everything that reads the same conversation.** Eight memory questions plus remember,
-  forget and tone go in one request. The conversation is encoded once, so the extra questions
-  cost a few tokens each, not another call.
+  forget and tone go in one request; the extra questions cost a few tokens each, not another call.
 - **Ask about what's observable, not about value.** "Does this message reveal a fact worth
   remembering?" never reached 0.7 on ten pieces of real news. "Is the user mainly sharing news
   about themselves, rather than asking for something?" caught all ten, with no false alarms on
   eight plain requests.
 - **Fix one bad case with a new narrow question, not a longer option.** Adding a clause to an
-  option description moved every probability, not just the broken one. The separate past-event
-  question fixed the case and left the rest alone.
-- **Keep the probabilities and tune on saved answers.** Decider answers are cheap to store, so the
-  cost sweep and the calibration chart replay them without calling the model again. With a lenient
-  cost table, sensitive facts slipped through on the development split; at 3, none did.
-- **It's good at relevance and at noticing when the user opens a subject.** When Arjun says he
-  can't walk past the lake since Biscuit died, P(mention) for his lake walks goes from about 0.2
-  to about 0.6.
-- **It rarely picks "quiet" on its own.** Sensitive facts that relate to the request mostly come
-  back as "skip". That's safe, but it means the quiet path relies on the cost table more than on
+  option description moved every probability. The separate past-event question fixed the case and
+  left the rest alone.
+- **Keep the probabilities, tune on saved answers.** The cost sweep, the calibration chart and the
+  playground all replay stored answers, without calling the model again.
+- **It's good at relevance, and at noticing when the user opens a subject.** When Arjun says he
+  misses Biscuit, P(mention) for Biscuit goes from 19% to 60%.
+- **It rarely picks "quiet" on its own.** Of the 21 facts I labelled quiet, Tact kept 5 quiet and
+  skipped 16; it said none of them. Safe, but the quiet lane leans on the cost table more than on
   the label.
 
-### Limits
+## Limits
 
-- The decider ran on CPU (a c7i.2xlarge), because my account had no GPU quota yet. That made
-  each gate call take about 10 seconds, slower than the 3B LLM gate. The published latency on a
-  GPU is around 115 ms per question, so this is a deployment issue rather than a model one, but I
-  couldn't measure it myself.
-- The LLM gate uses the same small 3B model that writes the replies. A larger LLM would likely
-  close some of the gap, at a higher cost per turn.
-- Tact still missed 3 of the 7 cases where the user raised a sensitive subject, and it only
-  mentioned 32 of the 52 helpful facts. Missing useful facts is its weak side: asked for a Thai
-  dish, it skipped a severe peanut allergy. Naming allergies in the "mention" option didn't fix
-  it and made other decisions worse, so safety constraints like allergies may be better handled
-  by a rule than by a judgment call.
-- The option order matters a little. I asked every memory question with the three options in
-  three different orders. The decider's top label changed in only 3% of decisions, and never
-  towards whichever option was listed first. But the cost table draws its lines where small
-  shifts matter, so the final action changed in 9%, and in the two other orders 1 and 2
-  sensitive facts got through. "Zero sensitive facts" holds for the order I shipped, not for
-  every order. Averaging the three orders barely helped, so I kept one.
-- "Said something sensitive" is a keyword check on the reply, which can miss paraphrases.
-- The past-event answers sit close to 0.5 for most memories, so that guard is a blunt tool: it
-  protects past events, but it also turns some correct retirements into flags.
-
-The dataset is small and hand-labelled by one person, so read these numbers as a signal, not a
-benchmark. The evaluation script is in the repo so you can rerun it on your own memories.
+- **Bedrock.** My new account couldn't call Bedrock during the hackathon, so the LLM baseline and
+  the replies use Qwen2.5 3B. A larger Bedrock model would be a stronger baseline; the re-run plan
+  (`eval/BEDROCK_PLAN.md`) is committed and its results will be reported whatever they show.
+- **Speed.** The decider ran on CPU (no GPU quota): about 10 seconds per gate call, slower than
+  the 3B LLM gate on the same machine. The published figure on a GPU is around 115 ms per question;
+  I couldn't measure that.
+- **Missed facts.** Tact kept 15 of 19 useful facts on the fresh set and missed 1 of 4 subjects the
+  user raised. Asked for a Thai dish, it skipped a severe peanut allergy; safety constraints like
+  allergies may be better handled by a rule than by a judgement call.
+- **Option order matters a little.** Asked with the options in three different orders, the
+  decider's top label changed in 3% of decisions, never towards the first-listed option. But the
+  final action changed in 9%, and the two other orders let 1 and 2 sensitive facts through. "Zero"
+  holds for the order I shipped, not for every order.
+- **Small, single-author data.** 50 conversations, labelled by me. "Said something sensitive" in
+  the replies is a keyword check, which can miss paraphrases. Read the numbers as a signal, not a
+  benchmark; the evaluation scripts are in the repo to rerun on your own memories.
 
 ## Reuse it
 
 The pattern is one standard-library Python file, `patterns/memory_gate/memory_gate.py`, plus a
-README and offline tests. It contains the questions, both designs, the cost-table policy, the
-write-side `MemoryCurator`, the prompt renderer and the Strands wiring. Drop it into any agent with
-long-term memory:
+README, a notebook and tests: the questions, both designs, the cost-table policy, the write-side
+curator, the prompt renderer and the Strands wiring.
 
-Try it first with no setup at all: `python patterns/memory_gate/quickstart.py` replays answers
-recorded from a real decider and runs the policy live, with no server, GPU or AWS account.
+```bash
+python patterns/memory_gate/quickstart.py   # 10 seconds, no server, GPU or AWS account
+```
 
 ```python
 from memory_gate import MemoryGate, http_ask, render_context
@@ -338,6 +328,7 @@ result = gate.safe_run(conversation=[("user", "Any tips for my trip to Paris?")]
 system_prompt = BASE_PROMPT + "\n\n" + render_context(result)
 ```
 
+- **Playground:** https://insomniac-coder33.github.io/tact/
 - **Code (Apache-2.0):** https://github.com/Insomniac-Coder33/tact
 - **Demo video:** `[[VIDEO_URL]]`
 
