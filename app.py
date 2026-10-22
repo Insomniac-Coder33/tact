@@ -17,8 +17,9 @@ from tact.agent import SYSTEM_PROMPT, TactAgent, decider_url  # noqa: E402
 
 st.set_page_config(page_title="Tact", page_icon="🤫", layout="wide")
 
-BADGE = {"mention": ("🟢", "may mention"), "quiet": ("🟡", "use quietly"), "skip": ("⚪", "skip")}
-BAR = {"mention": "#2e9e5b", "quiet": "#e0a526", "skip": "#9aa0a6"}
+BADGE = {"mention": "may mention", "quiet": "use quietly", "skip": "skip"}
+# Slots 1-3 of a colour-blind-safe categorical palette, the same as the article's figures.
+BAR = {"mention": "#2a78d6", "quiet": "#eb6834", "skip": "#1baf7a"}
 TONE = {"gentle": "🫶 gentle", "upbeat": "🎉 upbeat", "practical": "🧭 practical"}
 
 # One click each, in the order the demo video uses them.
@@ -45,12 +46,16 @@ def decider_health(url: str) -> dict | None:
 
 
 def prob_bar(p: dict[str, float]) -> str:
-    """A stacked bar of P(mention) / P(quiet) / P(skip)."""
+    """A stacked bar of P(mention) / P(quiet) / P(skip), with a 2px gap between segments."""
     segs = "".join(
-        f'<div title="{k} {p[k]:.0%}" style="width:{p[k] * 100:.1f}%;background:{BAR[k]}"></div>'
+        f'<div title="{k} {p[k]:.0%}" style="flex:{p[k]:.4f} 1 0;min-width:0;background:{BAR[k]}"></div>'
         for k in ("mention", "quiet", "skip") if p.get(k, 0) > 0)
-    return (f'<div style="display:flex;height:8px;border-radius:4px;overflow:hidden;'
+    return (f'<div style="display:flex;gap:2px;height:8px;border-radius:4px;overflow:hidden;'
             f'margin:2px 0 10px 0">{segs}</div>')
+
+
+def dot(action: str) -> str:
+    return f'<span style="color:{BAR[action]}">&#9679;</span>'
 
 
 if "tact" not in st.session_state:
@@ -111,19 +116,20 @@ def render_panel(turn: dict) -> None:
         st.info(f"🔒 Locked at your request, never mentioned again: {m['text']}")
     order = {"mention": 0, "quiet": 1, "skip": 2}
     for v in sorted(gate.verdicts, key=lambda v: (order[v.action], -v.probabilities.get(v.action, 0))):
-        icon, label = BADGE[v.action]
         lock = " 🔒" if v.locked else ""
         # Below 0.33 confidence the decider was right only about half the time in the eval
         # (eval/RESULTS.md, calibration), so flag those as close calls.
         close = (f" · <span title='confidence {v.confidence:.2f}: in testing, decisions this unsure "
                  f"were right about half the time'>⚖️ close call</span>" if v.confidence < 0.33 else "")
-        st.markdown(f"{icon} **{label}**{lock}{close} · <small>{v.text}</small>", unsafe_allow_html=True)
+        st.markdown(f"{dot(v.action)} **{BADGE[v.action]}**{lock}{close} · <small>{v.text}</small>",
+                    unsafe_allow_html=True)
         if v.probabilities:
             st.markdown(prob_bar(v.probabilities), unsafe_allow_html=True)
         if v.label != v.action:
             st.caption(f"↳ {v.reason}")
-    st.caption("Bar: 🟩 P(mention) 🟨 P(quiet) ⬜ P(skip) · ⚖️ close call: the decider was unsure "
-               "(right about half the time in testing)")
+    st.markdown(f"<small style='opacity:.75'>Bar: {dot('mention')} P(mention) {dot('quiet')} P(quiet) "
+                f"{dot('skip')} P(skip) · ⚖️ close call: the decider was unsure (right about half the "
+                "time in testing)</small>", unsafe_allow_html=True)
     if turn.get("remembered"):
         st.info(f"📝 Remembered (P={turn['p_remember']:.2f}): {turn['remembered']['text']}")
     render_curation(turn.get("curation"))
