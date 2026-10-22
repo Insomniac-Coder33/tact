@@ -80,6 +80,8 @@ launcher also starts Ollama on the instance; then set `TACT_PROVIDER=ollama`.
 
 ```bash
 uv sync
+uv run python -m tact.bedrock        # can this account call Bedrock? says what to fix if not
+echo bedrock > .cache/provider       # or "ollama": switches replies + embeddings, nothing else
 
 # 1. A decider server. Either locally (needs ~5 GB download, slow on CPU) ...
 pip install strands-decider
@@ -94,6 +96,7 @@ uv run streamlit run app.py
 # 3. The evaluation, and offline tests (no server needed)
 python patterns/memory_gate/quickstart.py   # the pattern in 10 seconds, replaying recorded answers
 uv run python eval/run_eval.py
+uv run python eval/replay_eval.py --dry-run  # the LLM parts on other models, replaying the decider
 uv run python -m unittest discover -s tests
 ```
 

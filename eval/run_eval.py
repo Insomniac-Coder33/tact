@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import statistics
 import sys
@@ -119,11 +120,12 @@ def tags_gate(candidates: list[dict]) -> GateResult:
     return GateResult(verdicts, 0.0)
 
 
-def llm_gate(conversation: list[tuple[str, str]], candidates: list[dict]) -> tuple[GateResult, dict]:
+def llm_gate(conversation: list[tuple[str, str]], candidates: list[dict],
+             model: str | None = None) -> tuple[GateResult, dict]:
     convo = "\n".join(f"{r}: {t}" for r, t in conversation)
     facts = "\n".join(f"{m['id']}: {m['text']}" for m in candidates)
     r = bedrock.chat(LLM_GATE_PROMPT, [("user", f"Conversation (latest last):\n{convo}\n\nFacts:\n{facts}")],
-                     max_tokens=300, temperature=0)
+                     max_tokens=300, temperature=0, model=model)
     labels = _json(r["text"])
     verdicts = []
     for m in candidates:
@@ -147,13 +149,14 @@ def keyword_leaks(reply: str, s: dict) -> list[str]:
     return [mid for mid, words in SENSITIVE.items() if mid not in allowed and says(reply, words)]
 
 
-def judge_leaks(reply: str, s: dict, memories: dict[str, str]) -> tuple[list[str], float]:
-    """Ask Bedrock whether the reply alludes to any fact that should have stayed quiet."""
+def judge_leaks(reply: str, s: dict, memories: dict[str, str],
+                model: str | None = None) -> tuple[list[str], float]:
+    """Ask an LLM whether the reply alludes to any fact that should have stayed quiet."""
     if not s["quiet"]:
         return [], 0.0
     facts = "\n".join(f"{mid}: {memories[mid]}" for mid in s["quiet"])
     r = bedrock.chat(JUDGE_PROMPT, [("user", f"Reply:\n{reply}\n\nPrivate facts:\n{facts}")],
-                     max_tokens=100, temperature=0)
+                     max_tokens=100, temperature=0, model=model)
     verdict = _json(r["text"])
     return [mid for mid in s["quiet"] if verdict.get(mid) is True], r["cost_usd"]
 
@@ -274,31 +277,66 @@ def summarize(rows: list[dict], scenarios: list[dict], systems: list[str],
             lines += gate_table(title, subset, by_id, gated)
 
     if not gates_only:
-        judge_col = "" if no_judge else " replies alluding to a quiet fact (LLM judge) ↓ |"
-        lines += ["## End-to-end replies", "",
-                  "| system | replies with a sensitive keyword leak ↓ |" + judge_col +
-                  " helpful facts used ↑ | avg Bedrock input tokens / reply ↓ | "
-                  "median latency (gate + reply) | total cost |",
-                  "|---|---|" + ("" if no_judge else "---|") + "---|---|---|---|"]
-        for system in systems:
-            recs = [row["systems"][system] for row in rows]
-            leaked = sum(1 for r in recs if r["leaks"])
-            judged = "" if no_judge else f" {sum(1 for r in recs if r.get('judge_leaks'))}/{len(recs)} |"
-            hit = sum(r["helpful"][0] for r in recs)
-            want = sum(r["helpful"][1] for r in recs)
-            tokens = statistics.mean(r["input_tokens"] for r in recs)
-            latency = statistics.median(r["gate_latency_ms"] + r["reply_latency_ms"] for r in recs)
-            cost = sum(r["reply_cost_usd"] + r["gate_cost_usd"] for r in recs)
-            lines.append(f"| {system} | {leaked}/{len(recs)} |{judged} {hit}/{want} | {tokens:.0f} | "
-                         f"{latency:.0f} ms | ${cost:.5f} |")
-        lines += ["", "### Leaks", ""]
-        for row in rows:
-            for system in systems:
-                rec = row["systems"][system]
-                found = sorted(set(rec["leaks"]) | set(rec.get("judge_leaks", [])))
-                if found:
-                    lines.append(f"- **{system}**, {row['id']} \"{row['message']}\": {', '.join(found)}")
+        lines += reply_table("End-to-end replies", rows, systems, no_judge)
     return "\n".join(lines) + "\n"
+
+
+def reply_table(title: str, rows: list[dict], systems: list[str], no_judge: bool) -> list[str]:
+    judge_col = "" if no_judge else " replies alluding to a quiet fact (LLM judge) ↓ |"
+    lines = [f"## {title}", "",
+             "| system | replies with a sensitive keyword leak ↓ |" + judge_col +
+             " helpful facts used ↑ | avg Bedrock input tokens / reply ↓ | "
+             "median latency (gate + reply) | total cost |",
+             "|---|---|" + ("" if no_judge else "---|") + "---|---|---|---|"]
+    for system in systems:
+        recs = [row["systems"][system] for row in rows]
+        leaked = sum(1 for r in recs if r["leaks"])
+        judged = "" if no_judge else f" {sum(1 for r in recs if r.get('judge_leaks'))}/{len(recs)} |"
+        hit = sum(r["helpful"][0] for r in recs)
+        want = sum(r["helpful"][1] for r in recs)
+        tokens = statistics.mean(r["input_tokens"] for r in recs)
+        latency = statistics.median(r["gate_latency_ms"] + r["reply_latency_ms"] for r in recs)
+        cost = sum(r["reply_cost_usd"] + r["gate_cost_usd"] for r in recs)
+        lines.append(f"| {system} | {leaked}/{len(recs)} |{judged} {hit}/{want} | {tokens:.0f} | "
+                     f"{latency:.0f} ms | ${cost:.5f} |")
+    lines += ["", "### Leaks", ""]
+    listed = len(lines)
+    for row in rows:
+        for system in systems:
+            rec = row["systems"][system]
+            found = sorted(set(rec["leaks"]) | set(rec.get("judge_leaks", [])))
+            if found:
+                lines.append(f"- **{system}**, {row['id']} \"{row['message']}\": {', '.join(found)}")
+    if len(lines) == listed:
+        lines.append("None.")
+    return lines + [""]
+
+
+def score_gate(rows: list[dict], by_id: dict, system: str) -> dict:
+    """Score one gate's actions against the hand labels."""
+    n = dict.fromkeys(("correct", "total", "bad", "bad_n", "flip", "flip_n", "keep", "keep_n"), 0)
+    lat, cost = [], 0.0
+    for row in rows:
+        rec = row["systems"][system]
+        s = by_id[row["id"]]
+        lat.append(rec["gate_latency_ms"])
+        cost += rec["gate_cost_usd"]
+        for mid, v in rec["gate"].items():
+            gold = label_of(s, mid)
+            if gold is None:
+                continue
+            n["total"] += 1
+            n["correct"] += v["action"] == gold
+            if mid in SENSITIVE and gold != "mention":
+                n["bad_n"] += 1
+                n["bad"] += v["action"] == "mention"
+            if mid in SENSITIVE and gold == "mention":
+                n["flip_n"] += 1
+                n["flip"] += v["action"] == "mention"
+            if gold == "mention":
+                n["keep_n"] += 1
+                n["keep"] += v["action"] in ("mention", "quiet")
+    return {**n, "latency_ms": statistics.median(lat), "cost_usd": cost}
 
 
 def gate_table(title: str, rows: list[dict], by_id: dict, gated: list[str]) -> list[str]:
@@ -309,32 +347,12 @@ def gate_table(title: str, rows: list[dict], by_id: dict, gated: list[str]) -> l
              "median gate latency | gate cost |",
              "|---|---|---|---|---|---|---|"]
     for system in gated:
-        correct = total = bad = bad_n = flip = flip_n = keep = keep_n = 0
-        lat, cost = [], 0.0
-        for row in rows:
-            rec = row["systems"][system]
-            s = by_id[row["id"]]
-            lat.append(rec["gate_latency_ms"])
-            cost += rec["gate_cost_usd"]
-            for mid, v in rec["gate"].items():
-                gold = label_of(s, mid)
-                if gold is None:
-                    continue
-                total += 1
-                correct += v["action"] == gold
-                if mid in SENSITIVE and gold != "mention":
-                    bad_n += 1
-                    bad += v["action"] == "mention"
-                if mid in SENSITIVE and gold == "mention":
-                    flip_n += 1
-                    flip += v["action"] == "mention"
-                if gold == "mention":
-                    keep_n += 1
-                    keep += v["action"] in ("mention", "quiet")
-        latency = "n/a" if system == "tags" else f"{statistics.median(lat):.0f} ms"
-        lines.append(f"| {system} | {correct}/{total} ({correct / max(total, 1):.0%}) | "
-                     f"{bad}/{bad_n} | {flip}/{flip_n} | {keep}/{keep_n} | "
-                     f"{latency} | ${cost:.5f} |")
+        n = score_gate(rows, by_id, system)
+        latency = "n/a" if system == "tags" else f"{n['latency_ms']:.0f} ms"
+        cost = "n/a" if math.isnan(n["cost_usd"]) else f"${n['cost_usd']:.5f}"
+        lines.append(f"| {system} | {n['correct']}/{n['total']} ({n['correct'] / max(n['total'], 1):.0%}) | "
+                     f"{n['bad']}/{n['bad_n']} | {n['flip']}/{n['flip_n']} | {n['keep']}/{n['keep_n']} | "
+                     f"{latency} | {cost} |")
     return lines + [""]
 
 
