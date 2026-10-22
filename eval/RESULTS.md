@@ -81,6 +81,33 @@ Accuracy stays within 80–85%; the cost moves the kind of mistake. 3 was chosen
 
 Confidence intervals are Wilson 95% intervals. Made by `eval/cost_sweep.py`.
 
+## A stronger LLM baseline: Qwen2.5 7B
+
+Bedrock stayed blocked on this account, so, as planned in `eval/BEDROCK_PLAN.md`, the LLM gate
+was re-run with Qwen2.5 7B Instruct (more than twice the size of the 3B), on Ollama on the same
+c7i.2xlarge CPU instance, with the same prompt, the same shortlists and temperature 0. The
+decider's answers are replayed. All 50 answers were valid JSON. Full tables:
+[`RESULTS-ollama.md`](RESULTS-ollama.md).
+
+| scenarios | gate | right decisions (95% CI) | sensitive facts let through ↓ | user-raised subjects mentioned ↑ | useful facts kept ↑ | median time per turn |
+|---|---|---|---|---|---|---|
+| 16 fresh | Qwen2.5 3B | 73/105 (70%, 60–78%) | 3/24 | 4/4 | 13/19 | 5.5 s |
+| 16 fresh | Qwen2.5 7B | 83/105 (79%, 70–86%) | 5/24 | 3/4 | 10/19 | 13.3 s |
+| 16 fresh | **Tact** | **92/105 (88%, 80–93%)** | **0/24** | 3/4 | 15/19 | 11.2 s |
+| all 50 | Qwen2.5 7B | 281/365 (77%, 72–81%) | 7/84 (4–16%) | 5/11 | 30/71 | 14.3 s |
+| all 50 | **Tact** | **307/365 (84%, 80–88%)** | **0/84 (0–4%)** | 7/11 | 47/71 | 11.0 s |
+
+The bigger model is more accurate than the 3B, but still lets sensitive facts through: on the
+fresh set it let through more (5) than the 3B (3). On the 16 fresh conversations alone the accuracy
+intervals overlap; across all 50 they barely do. On the same CPU, the decider was also faster per
+turn (11.0 s vs 14.3 s) for the same 8 decisions.
+
+Handing the decider's unsure decisions to the 7B didn't clearly help either: below 0.33 confidence
+it gave 93/105 on the fresh set (one more right, but one sensitive fact through) and 212/260 on the
+original set (three fewer).
+
+Run: `eval/results/ollama-20261022-160406.json`.
+
 ## End-to-end replies
 
 | system | replies with a sensitive keyword leak ↓ | helpful facts used ↑ | avg Bedrock input tokens / reply ↓ | median latency (gate + reply) | total cost |
