@@ -73,6 +73,12 @@ the behaviour, without retraining anything. The 3 came from a sweep on a dev spl
 ([`eval/tune.py`](../../eval/tune.py)): at 5 the gate almost never said anything, and below
 2.5 it started saying sensitive facts.
 
+The cost picks *which* mistakes the gate makes, not how many. Re-scored on all 50 evaluation
+conversations ([`eval/cost_sweep.py`](../../eval/cost_sweep.py)), accuracy stays at 81–85% from
+0 to 6, but at 0 the gate says 10 of 84 sensitive facts, and at 6 it acknowledges none of the 11
+painful subjects that users raised themselves. Drag it yourself in the
+[playground](https://insomniac-coder33.github.io/tact/).
+
 A memory with `"locked": True` (the user asked not to hear about it) can still shape answers
 quietly, but the policy never lets it be mentioned.
 
