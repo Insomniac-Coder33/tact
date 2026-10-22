@@ -246,6 +246,10 @@ def app() -> None:
     security_group(my_ip())
     provider = os.environ.get("TACT_PROVIDER") or (
         (CACHE / "provider").read_text().strip() if (CACHE / "provider").exists() else "bedrock")
+    if provider == "bedrock":
+        # The instance has no AWS credentials, and giving it a Bedrock role would widen IAM.
+        raise SystemExit("With Bedrock, run the app on your own machine (it still uses the decider "
+                         "on this instance):\n    uv run streamlit run app.py")
     print(f"copying git HEAD to {ip}")
     code = subprocess.run(["git", "archive", "--format=tar", "HEAD"], cwd=ROOT,
                           capture_output=True, check=True).stdout
