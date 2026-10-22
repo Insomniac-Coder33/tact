@@ -63,6 +63,18 @@ TACT_PROVIDER=bedrock uv run python eval/replay_eval.py
 - No re-running to get a better result. If a run fails partway (for example throttling on a
   new account's small quota), it is re-run whole and the failure is noted here.
 
+## If Bedrock stays blocked
+
+Then only steps 1 and 2 run, against a larger open model than the 3B baseline: Qwen2.5 7B
+Instruct, served by Ollama on the decider's EC2 instance, with the same prompt and temperature 0.
+
+```bash
+uv run python infra/decider_ec2.py pull qwen2.5:7b-instruct
+TACT_PROVIDER=ollama uv run python eval/replay_eval.py --models qwen2.5:7b-instruct --parts gates
+```
+
+The results go into `eval/RESULTS-ollama.md`, reported the same way, whatever they show.
+
 ## Not in scope
 
 The decider on a GPU (the account has no GPU quota), new scenarios, and any change to Tact.

@@ -6,6 +6,7 @@ Tact works on accounts where Amazon Bedrock is not available (TACT_PROVIDER=olla
     uv run python infra/decider_ec2.py up      # launch (or start) and wait until it answers
     uv run python infra/decider_ec2.py app     # also run the Tact demo app on the instance
     uv run python infra/decider_ec2.py status  # state, URL, health
+    uv run python infra/decider_ec2.py pull qwen2.5:7b-instruct   # another Ollama model
     uv run python infra/decider_ec2.py stop    # stop billing for compute, keep the disk
     uv run python infra/decider_ec2.py down    # terminate everything it created
 
@@ -18,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import shlex
 import subprocess
 import sys
 import time
@@ -288,6 +290,16 @@ def status() -> None:
         print("app:", APP_FILE.read_text())
 
 
+def pull() -> None:
+    """Pull another Ollama model onto the instance, e.g. a larger LLM-gate baseline."""
+    inst = find_instance()
+    if not inst or inst["State"]["Name"] != "running":
+        raise SystemExit("start the instance first: infra/decider_ec2.py up")
+    if len(sys.argv) < 3:
+        raise SystemExit("usage: infra/decider_ec2.py pull MODEL   e.g. qwen2.5:7b-instruct")
+    ssh(inst["PublicIpAddress"], f"OLLAMA_HOST=127.0.0.1:{OLLAMA_PORT} ollama pull {shlex.quote(sys.argv[2])}")
+
+
 def stop() -> None:
     inst = find_instance()
     if inst:
@@ -312,4 +324,5 @@ def down() -> None:
 
 
 if __name__ == "__main__":
-    {"up": up, "app": app, "status": status, "stop": stop, "down": down}[sys.argv[1] if len(sys.argv) > 1 else "status"]()
+    {"up": up, "app": app, "status": status, "pull": pull, "stop": stop,
+     "down": down}[sys.argv[1] if len(sys.argv) > 1 else "status"]()
