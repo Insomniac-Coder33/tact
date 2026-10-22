@@ -223,8 +223,8 @@ footer p { margin: 4px 0; }
       </table>
       </div>
       <p class="note">The fresh conversations were written, and their labels committed, after the configuration was
-        frozen. A "useful fact kept" is mentioned or used quietly. The LLM gate is a small local model asked the
-        same three-way question.</p>
+        frozen. A "useful fact kept" is mentioned or used quietly. The LLM gates are local Qwen2.5 models (7B and 3B) asked
+        the same three-way question.</p>
     </section>
   </div>
 
@@ -294,6 +294,7 @@ footer p { margin: 4px 0; }
   const GATES = [
     { id: "tact", name: (c) => `Tact: decider + cost table (${c})`, act: (s, m, cost) => decide(s.p[m], cost).action },
     { id: "top", name: () => "Decider's top label, no cost table", act: (s, m) => decide(s.p[m], D.cost).top },
+    { id: "llm7", name: () => "LLM gate (Qwen2.5 7B)", act: (s, m) => s.llm7[m] },
     { id: "llm", name: () => "LLM gate (Qwen2.5 3B)", act: (s, m) => s.llm[m] },
     { id: "tags", name: () => "Static sensitivity tags", act: (s, m) => (m in D.sensitive ? "quiet" : "mention") },
   ];
@@ -343,7 +344,7 @@ footer p { margin: 4px 0; }
     const scens = inSet(state.set);
     const cost = costTable(state.c);
     for (const b of document.querySelectorAll(".seg button")) b.setAttribute("aria-pressed", b.dataset.set === state.set);
-    const scored = score(scens, GATES[3].act, cost).total;
+    const scored = score(scens, GATES[0].act, cost).total;
     $("#res-sub").textContent = `${SETS[state.set][0].toUpperCase()}${SETS[state.set].slice(1)}: ` +
       `${scens.length * 8} memory decisions, ${scored} of them with a hand label (the rest could go either way).`;
     $("#score-body").innerHTML = GATES.map((g) => {
@@ -408,21 +409,21 @@ footer p { margin: 4px 0; }
 
   function renderCharts() {
     const scens = inSet(state.set);
-    const tact = GATES[0].act, llm = GATES[2].act;
+    const tact = GATES[0].act, llm = GATES.find((g) => g.id === "llm7").act;
     const runs = STEPS.map((c) => score(scens, tact, costTable(c)));
     const base = score(scens, llm, null);
     const acc = runs.map((n) => (100 * n.right) / n.total);
     const accRef = (100 * base.right) / base.total;
     const lo = Math.max(0, Math.floor((Math.min(...acc, accRef) - 5) / 10) * 10);
     chart($("#chart-acc"), {
-      values: acc, ref: accRef, refLabel: `LLM gate ${Math.round(accRef)}%`, fmt: (v) => `${Math.round(v)}%`,
+      values: acc, ref: accRef, refLabel: `7B LLM gate ${Math.round(accRef)}%`, fmt: (v) => `${Math.round(v)}%`,
       domain: [lo, 100], ticks: Array.from({ length: (100 - lo) / 10 + 1 }, (_, k) => lo + k * 10),
       label: `Right decisions for Tact at each cost; ${Math.round(acc[STEPS.indexOf(state.c)])}% at ${state.c}`,
     });
     const leaks = runs.map((n) => n.bad);
     const top = Math.max(4, Math.ceil(Math.max(...leaks, base.bad) / 4) * 4);
     chart($("#chart-leak"), {
-      values: leaks, ref: base.bad, refLabel: `LLM gate ${base.bad}`, fmt: (v) => String(Math.round(v)),
+      values: leaks, ref: base.bad, refLabel: `7B LLM gate ${base.bad}`, fmt: (v) => String(Math.round(v)),
       domain: [0, top], ticks: Array.from({ length: 5 }, (_, k) => (k * top) / 4),
       label: `Sensitive facts Tact lets through at each cost; ${leaks[STEPS.indexOf(state.c)]} at ${state.c}`,
     });
@@ -460,7 +461,7 @@ footer p { margin: 4px 0; }
   function renderDetail() {
     const s = D.scenarios.find((x) => x.id === state.sid);
     const cost = costTable(state.c);
-    const rows = s.candidates.map((m) => ({ m, ...decide(s.p[m], cost), gold: s.labels[m], llm: s.llm[m] }));
+    const rows = s.candidates.map((m) => ({ m, ...decide(s.p[m], cost), gold: s.labels[m], llm: s.llm[m], llm7: s.llm7[m] }));
     rows.sort((a, b) => LANES.indexOf(a.action) - LANES.indexOf(b.action) || b.P[b.action] - a.P[a.action]);
     const convo = [...s.history, ["user", s.message]].map(([role, text]) =>
       `<div class="bubble ${role}"><span class="who">${role === "user" ? "Arjun" : "assistant"}</span>${esc(text)}</div>`).join("");
@@ -477,7 +478,7 @@ footer p { margin: 4px 0; }
         <div class="mem-text">${esc(D.memories[r.m])}</div>
         <div class="bar" role="img" aria-label="mention ${Math.round(r.P.mention * 100)}%, quiet ${Math.round(r.P.quiet * 100)}%, skip ${Math.round(r.P.skip * 100)}%">
           ${LANES.map((l) => `<span class="${l}" style="flex:${r.P[l]} 1 0" title="${l} ${Math.round(r.P[l] * 100)}%"></span>`).join("")}</div>
-        <div class="probs">mention ${Math.round(r.P.mention * 100)}% · quiet ${Math.round(r.P.quiet * 100)}% · skip ${Math.round(r.P.skip * 100)}% · LLM gate: ${r.llm}${leak}</div>
+        <div class="probs">mention ${Math.round(r.P.mention * 100)}% · quiet ${Math.round(r.P.quiet * 100)}% · skip ${Math.round(r.P.skip * 100)}% · LLM gates: 7B ${r.llm7}, 3B ${r.llm}${leak}</div>
         ${why}</div>`;
     }).join("");
     let replies = "";

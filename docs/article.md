@@ -14,9 +14,10 @@
   EC2 instance. **Generative model:** built for Amazon Bedrock (Nova Lite); see the note below on
   what ran during the hackathon.
 - **Results:** on 16 conversations written *after* the configuration was frozen, Tact made **88%**
-  of its decisions right, against 70% for an LLM asked the same question and 21% for static
-  "sensitive" tags. It let **0 of 24** sensitive facts through (the LLM: 3). Across all 50 test
-  conversations: **0 of 84**, against 8.
+  of its decisions right, against 79% for a 7B LLM asked the same question (70% for a 3B) and 21%
+  for static "sensitive" tags. It let **0 of 24** sensitive facts through; the 7B LLM let 5 through.
+  Across all 50 test conversations: **0 of 84**, against 7. On the same CPU it was also faster than
+  the 7B LLM per turn (11.0 s vs 14.3 s).
 - **Try it without installing anything:** [the playground](https://insomniac-coder33.github.io/tact/)
   replays the decider's real answers and lets you change the policy. **Code:**
   https://github.com/Insomniac-Coder33/tact (Apache-2.0). **Demo video:** `[[VIDEO_URL]]`
@@ -227,15 +228,20 @@ same 8 shortlisted memories:
 |---|---|---|---|---|
 | static tags | 21% (14–30%) | 0 / 24 | 0 / 4 | 19 / 19 |
 | LLM gate: Qwen2.5 3B, same question | 70% (60–78%) | 3 / 24 | 4 / 4 | 13 / 19 |
+| LLM gate: Qwen2.5 7B, same question | 79% (70–86%) | 5 / 24 | 3 / 4 | 10 / 19 |
 | **Tact** | **88% (80–93%)** | **0 / 24** | 3 / 4 | 15 / 19 |
 
-On the original 34: Tact 83%, the LLM gate 60%, tags 23%, and 85% vs 61% vs 19% on the 24
-conversations that weren't used for tuning. Across all 50, Tact let **0 of 84** sensitive facts
-through (95% CI 0–4%); the LLM gate let 8 through.
+The 7B was added after Bedrock stayed blocked, as written in the plan beforehand. It's more
+accurate than the 3B but no safer: it let more sensitive facts through, not fewer. On 16
+conversations the accuracy intervals overlap, so here are all 50: Tact 84% (80–88%) against 77%
+(72–81%) for the 7B, and **0 of 84** sensitive facts let through (95% CI 0–4%) against 7. On the
+original 34 alone: Tact 83%, the 7B 76%, the 3B 60%, tags 23%.
 
 The LLM gate's slips are exactly the kind this project is about. Asked for job-interview tips, it
 allowed Arjun's therapy for anxiety. Asked what to gift his dad, it allowed the heart surgery.
-Asked to suggest activities for his recovering dad, it allowed his layoff.
+Asked to suggest activities for his recovering dad, it allowed his layoff. The 7B made new ones:
+asked for birthday ideas, it allowed the dog that died; asked for a morning running plan, it
+allowed his old morning walks with Biscuit.
 
 Tags look safe, and they are, but they get three out of four decisions wrong: every helpful fact is
 "mentioned", relevant or not, and a painful subject can never be acknowledged, even when the user
@@ -265,9 +271,10 @@ decider gave its top label 90% or more, it was right **97 times out of 97**. Bet
 ![Strands Decider 2B: stated confidence vs. accuracy](img/calibration.png)
 
 So the signal says which decisions deserve a second look. The demo shows a "close call" badge
-below 0.33 confidence. Handing just those to the 3B LLM didn't help (215 right alone, 217 at
-best), because the cases the decider finds hard are hard for that LLM too; a Bedrock model may do
-better, and that's in the plan.
+below 0.33 confidence. Handing just those to an LLM didn't clearly help: with the 3B, 215 right
+alone and 217 at best; with the 7B, one more right on the fresh set but one sensitive fact through,
+and three fewer right on the original set. The cases the decider finds hard are hard for those
+LLMs too. A Bedrock model may do better, and that's in the plan.
 
 It's also repeatable: two separate runs gave identical probabilities on all 272 decisions. The 3B
 LLM gate, at temperature 0, changed one of its 272 labels between the same two runs.
@@ -293,12 +300,13 @@ LLM gate, at temperature 0, changed one of its 272 labels between the same two r
 
 ## Limits
 
-- **Bedrock.** My new account couldn't call Bedrock during the hackathon, so the LLM baseline and
-  the replies use Qwen2.5 3B. A larger Bedrock model would be a stronger baseline; the re-run plan
-  (`eval/BEDROCK_PLAN.md`) is committed and its results will be reported whatever they show.
-- **Speed.** The decider ran on CPU (no GPU quota): about 10 seconds per gate call, slower than
-  the 3B LLM gate on the same machine. The published figure on a GPU is around 115 ms per question;
-  I couldn't measure that.
+- **Bedrock.** My new account couldn't call Bedrock during the hackathon, so the LLM baselines are
+  Qwen2.5 3B and 7B, and the replies use the 3B. A large Bedrock model would be a stronger baseline;
+  the re-run plan (`eval/BEDROCK_PLAN.md`) is committed and its results will be reported whatever
+  they show.
+- **Speed.** The decider ran on CPU (no GPU quota): about 11 seconds per gate call. That's faster
+  than the 7B LLM on the same machine (14 s) but slower than the 3B (6.5 s). The published figure on
+  a GPU is around 115 ms per question; I couldn't measure that.
 - **Missed facts.** Tact kept 15 of 19 useful facts on the fresh set and missed 1 of 4 subjects the
   user raised. Asked for a Thai dish, it skipped a severe peanut allergy; safety constraints like
   allergies may be better handled by a rule than by a judgement call.

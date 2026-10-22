@@ -54,12 +54,13 @@ the other 16 were written, and their labels committed, after the configuration w
 `eval-freeze-2026-10-22`). Some are built to break static tags: the user raises the painful
 subject themselves, or it only becomes sensitive two turns in.
 
-| | static tags | LLM as the gate (Qwen2.5 3B) | **Tact (Decider 2B)** |
-|---|---|---|---|
-| right decisions, 16 fresh conversations | 21% | 70% | **88%** (95% CI 80–93%) |
-| right decisions, 34 original conversations | 23% | 60% | **83%** (85% on the 24 untuned) |
-| sensitive facts let through, all 50 | 0 / 84 | 8 / 84 | **0 / 84** |
-| subjects the user raised, acknowledged, all 50 | 0 / 11 | 6 / 11 | **7 / 11** |
+| | static tags | LLM gate, Qwen2.5 3B | LLM gate, Qwen2.5 7B | **Tact (Decider 2B)** |
+|---|---|---|---|---|
+| right decisions, 16 fresh conversations | 21% | 70% | 79% | **88%** (95% CI 80–93%) |
+| right decisions, all 50 | 22% | 63% | 77% | **84%** (80–88%) |
+| sensitive facts let through, all 50 | 0 / 84 | 8 / 84 | 7 / 84 | **0 / 84** |
+| subjects the user raised, acknowledged, all 50 | 0 / 11 | 6 / 11 | 5 / 11 | **7 / 11** |
+| median time per turn, same CPU instance | n/a | 6.5 s | 14.3 s | 11.0 s |
 
 In the replies, Tact never said anything sensitive (top-8 retrieval did 4 times out of 34, all
 memories in the prompt 3 times), used as many helpful facts as retrieval, and sent the model
