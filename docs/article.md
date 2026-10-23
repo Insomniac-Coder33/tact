@@ -83,7 +83,8 @@ with the sensitive ones marked.
 
 Everything runs on AWS. Decider 2B is served on an EC2 instance. Tact was built for Amazon Bedrock
 (Nova Lite for replies, Titan Text Embeddings V2 for the shortlist), but my brand-new AWS account
-couldn't call Bedrock models during the hackathon. So the replies and embeddings in this article
+couldn't call Bedrock models during the hackathon: every call, even in the Bedrock console's own
+playground, returned "Operation not allowed", and adding a verified card didn't clear it. So the replies and embeddings in this article
 come from Qwen2.5 3B and nomic-embed-text, served by Ollama on the same EC2 instance as the
 decider. One setting (`echo bedrock > .cache/provider`) switches between the two; the gate doesn't
 change. The repo includes a written plan for re-running every LLM part on Bedrock (Nova Lite and
@@ -302,8 +303,8 @@ LLM gate, at temperature 0, changed one of its 272 labels between the same two r
 
 - **Bedrock.** My new account couldn't call Bedrock during the hackathon, so the LLM baselines are
   Qwen2.5 3B and 7B, and the replies use the 3B. A large Bedrock model would be a stronger baseline;
-  the re-run plan (`eval/BEDROCK_PLAN.md`) is committed and its results will be reported whatever
-  they show.
+  the re-run plan (`eval/BEDROCK_PLAN.md`) is committed and needs no decider server, so it can run
+  as soon as the account is cleared; its results will be reported whatever they show.
 - **Speed.** The decider ran on CPU (no GPU quota): about 11 seconds per gate call. That's faster
   than the 7B LLM on the same machine (14 s) but slower than the 3B (6.5 s). The published figure on
   a GPU is around 115 ms per question; I couldn't measure that.

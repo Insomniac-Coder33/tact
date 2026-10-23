@@ -75,6 +75,11 @@ TACT_PROVIDER=ollama uv run python eval/replay_eval.py --models qwen2.5:7b-instr
 
 The results go into `eval/RESULTS-ollama.md`, reported the same way, whatever they show.
 
+**Status, 2026-10-23:** Bedrock was still blocked at submission time. Every call, including one
+from the Bedrock console's playground, returned `ValidationException: Operation not allowed`, also
+after a verified card was added. The fallback above ran on 2026-10-22; the
+Bedrock steps have not run yet.
+
 ## Not in scope
 
 The decider on a GPU (the account has no GPU quota), new scenarios, and any change to Tact.
