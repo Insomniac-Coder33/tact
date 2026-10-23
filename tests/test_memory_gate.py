@@ -127,7 +127,8 @@ class ForgetTest(unittest.TestCase):
 
         def ask(state, questions):
             if "ex" in questions and questions["ex"]["type"] == "noul":  # the follow-up
-                return {"veg": {"noul": .05}, "ex": {"noul": .9}, "seat": {"noul": .02}}
+                # "seat" passes the threshold too, but is well behind the clear match.
+                return {"veg": {"noul": .05}, "ex": {"noul": .9}, "seat": {"noul": .65}}
             return {q: answers[q] for q in questions}
 
         store = Store()

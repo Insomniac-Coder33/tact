@@ -55,6 +55,12 @@ REMEMBER_AT = 0.7
 CURATE_K = 5     # how many of the closest memories the curator checks against a new fact
 FORGET_AT = 0.7
 LOCK_AT = 0.6
+# Each memory is judged on its own, so after a sad conversation a fact from that conversation
+# can pass LOCK_AT too: "don't bring up Meera" right after the Biscuit turns scored Meera 0.80
+# and the new lake memory 0.66, and the demo locked both. Only memories close to the clearest
+# match are locked. On 9 hand-written requests (that one included, plus two-subject and "don't
+# bring that up" cases) this got all 9 right; the plain threshold got 8.
+LOCK_MARGIN = 0.1
 TONE_AT = 0.5
 TONE_STYLE = {
     "gentle": "The user seems to be having a hard time. Be gentle and kind, and keep it simple.",
@@ -132,8 +138,10 @@ class MemoryGateIntervention(InterventionHandler):
         except Exception:  # noqa: BLE001 - locking is best effort
             return []
         locked = []
+        top = max(answers[v.memory_id]["noul"] for v in self.last.verdicts)
         for v in self.last.verdicts:
-            if answers[v.memory_id]["noul"] >= LOCK_AT:
+            p = answers[v.memory_id]["noul"]
+            if p >= LOCK_AT and p >= top - LOCK_MARGIN:
                 memory = self.store.lock(v.memory_id)
                 v.locked = True
                 v.action, v.reason = self.gate.decide(v.probabilities, locked=True)
